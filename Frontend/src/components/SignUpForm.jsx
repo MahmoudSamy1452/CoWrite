@@ -18,7 +18,7 @@ const SignUpForm = () => {
             Username
           </label>
         </div>
-        <div className="relative mt-3">
+        <div className="relative mt-4">
           <input
             type="password"
             id="password"
@@ -33,7 +33,7 @@ const SignUpForm = () => {
             Password
           </label>
         </div>
-        <div className="relative mb-4 mt-3">
+        <div className="relative mb-3 mt-4">
           <input
             type="password"
             id="confirmPassword"
@@ -48,7 +48,8 @@ const SignUpForm = () => {
             Confirm Password
           </label>
         </div>
-        <div className="mb-2">
+        <button type="submit" className="text-white bg-blue-500">Sign Up</button>
+        <div className="mt-1 mb-2">
           <p className="text-gray-500 inline">Already have an account? </p>
           <a href="/login">Log in!</a>
         </div>

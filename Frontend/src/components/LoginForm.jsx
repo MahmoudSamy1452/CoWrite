@@ -18,7 +18,7 @@ const LoginForm = () => {
             Username
           </label>
         </div>
-        <div className="relative mb-6 mt-3">
+        <div className="relative mb-3 mt-3">
           <input
             type="password"
             id="password"
@@ -33,7 +33,10 @@ const LoginForm = () => {
             Password
           </label>
         </div>
-        <div className="mb-2">
+        <button type="submit" className="text-white bg-blue-500">
+          Log In
+        </button>
+        <div className="mt-1 mb-2">
           <p className="text-gray-500 inline">Do not have an account? </p>
           <a href="/signup">Sign Up!</a>
         </div>
