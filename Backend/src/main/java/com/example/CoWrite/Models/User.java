@@ -3,10 +3,12 @@ package com.example.CoWrite.Models;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 @Entity
 @Table(name = "user")
 @NoArgsConstructor
+@AllArgsConstructor
 @Data
 public class User {
 
@@ -14,4 +16,7 @@ public class User {
     private String username;
 
     private String password;
+
 }
+
+
