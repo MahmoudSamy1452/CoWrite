@@ -16,12 +16,6 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("/signup")
-    public void signup(@RequestBody User user)
-    {
-        userService.createUser(user);
-    }
-
     @GetMapping("/test")
     public String testHello()
     {
