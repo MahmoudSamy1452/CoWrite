@@ -4,8 +4,6 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.Getter;
-import org.hibernate.cfg.Environment;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -15,13 +13,17 @@ import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
+import java.util.Map;
 
 @Component
 
 @Getter
 public class JWTGenerator {
 
-    private static final Key key = generateSecretKey(SecurityConstants.JWT_SECRET);
+    static Map<String, String> env = System.getenv();
+    private static final String jwt = env.get("JWT_SECRET_KEY");
+    private static final Key key = generateSecretKey(jwt);
+
 
     public static SecretKey generateSecretKey(String secret) {
         byte[] decodedSecret = Base64.getDecoder().decode(secret);
