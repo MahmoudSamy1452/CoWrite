@@ -3,7 +3,6 @@ package com.example.CoWrite.DTOs;
 import lombok.Data;
 
 import java.util.Date;
-import com.example.CoWrite.Models.User;
 
 @Data
 public class DocumentDTO {
