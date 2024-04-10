@@ -1,7 +1,9 @@
 package com.example.CoWrite.Controllers;
 
+import com.example.CoWrite.DTOs.JWT;
 import com.example.CoWrite.Models.User;
 import com.example.CoWrite.Services.UserService;
+import com.example.CoWrite.Utils.JWTGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,11 +22,13 @@ public class AuthController {
 
     private AuthenticationManager authenticationManager;
     private UserService userService;
+    private JWTGenerator jwtGenerator;
 
     @Autowired
-    public AuthController(AuthenticationManager authenticationManager, UserService userService) {
+    public AuthController(AuthenticationManager authenticationManager, UserService userService, JWTGenerator jwtGenerator) {
         this.authenticationManager = authenticationManager;
         this.userService = userService;
+        this.jwtGenerator = jwtGenerator;
     }
 
     @PostMapping("register")
@@ -41,9 +45,11 @@ public class AuthController {
     }
 
     @PostMapping("login")
-    public ResponseEntity<String> login(@RequestBody User user) {
+    public ResponseEntity<JWT> login(@RequestBody User user) {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        return new ResponseEntity<>("User logged in successfully", HttpStatus.OK);
+        String token = jwtGenerator.generateToken(authentication);
+        JWT jwt = new JWT(token);
+        return new ResponseEntity<>(jwt, HttpStatus.OK);
     }
 }
