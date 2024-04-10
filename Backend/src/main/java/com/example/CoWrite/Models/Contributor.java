@@ -19,8 +19,8 @@ public class Contributor {
     private User username;
 
     @ManyToOne (optional = false)
-    @JoinColumn (name = "document_name")
-    private Document documentName;
+    @JoinColumn (name = "document_id")
+    private Document document;
 
     private char role;
 }

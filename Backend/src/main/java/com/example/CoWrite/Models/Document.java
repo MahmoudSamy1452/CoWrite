@@ -17,10 +17,6 @@ public class Document {
     
     private String name;
 
-    @ManyToOne (optional = false)
-    @JoinColumn (name = "owner")
-    private User owner;
-
     private String content;
 
     private Date createdAt;
