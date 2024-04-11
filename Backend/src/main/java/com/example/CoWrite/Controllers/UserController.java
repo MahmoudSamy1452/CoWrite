@@ -3,6 +3,7 @@ package com.example.CoWrite.Controllers;
 import com.example.CoWrite.Models.User;
 import com.example.CoWrite.Services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,8 +18,12 @@ public class UserController {
     }
 
     @GetMapping("/test")
-    public String testHello()
+    public String testHello(@RequestHeader("Authentication") String bearerToken)
     {
+        if(StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7, bearerToken.length());
+        }
+
         return "hello there";
     }
 }
