@@ -5,7 +5,6 @@ import com.example.CoWrite.Models.Document;
 import com.example.CoWrite.Services.DocumentService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,21 +28,24 @@ public class DocumentController {
     }
 
     @GetMapping("/{documentId}")
-    public Document getDocument(@PathVariable Long documentId) throws ResourceNotFoundException {
-        return modelMapper.map(documentService.getDocument(documentId), Document.class);
+    public ResponseEntity<Document> getDocument(@PathVariable Long documentId) throws ResourceNotFoundException {
+        Document document = modelMapper.map(documentService.getDocument(documentId), Document.class);
+        return ResponseEntity.status(200).body(document);
     }
 
     @GetMapping("/all")
-    public List<Document> getDocuments(@RequestHeader("Authorization") String bearerToken) {
-        return documentService.getDocuments(bearerToken)
+    public ResponseEntity<List<Document>> getDocuments(@RequestHeader("Authorization") String bearerToken) {
+        List<Document> documents = documentService.getDocuments(bearerToken)
                 .stream()
                 .map(documentDTO -> modelMapper.map(documentDTO, Document.class))
                 .collect(Collectors.toList());
+        return ResponseEntity.status(200).body(documents);
     }
 
     @PostMapping("")
-    public void createDocument(@RequestBody Document document) {
+    public ResponseEntity<Object> createDocument(@RequestBody Document document) {
         documentService.createDocument(document);
+        return ResponseEntity.status(200).build();
     }
 
     @PutMapping("/rename/{documentId}")
