@@ -1,13 +1,18 @@
 package com.example.CoWrite.Services;
 
 import com.example.CoWrite.DTOs.DocumentDTO;
+import com.example.CoWrite.Exceptions.BadRequest;
 import com.example.CoWrite.Exceptions.ResourceNotFoundException;
 import com.example.CoWrite.Models.Document;
 import com.example.CoWrite.Repositories.ContributorRepository;
 import com.example.CoWrite.Repositories.DocumentRepository;
+import com.example.CoWrite.Utils.JWTGenerator;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
+import java.util.List;
 
 @Service
 public class DocumentService {
@@ -16,13 +21,15 @@ public class DocumentService {
 
     private final ContributorRepository contributorRepository;
 
+    private final JWTGenerator jwtGenerator;
 
     private final ModelMapper modelMapper;
 
     @Autowired
-    public DocumentService(DocumentRepository documentRepository, ContributorRepository contributorRepository, ModelMapper modelMapper) {
+    public DocumentService(DocumentRepository documentRepository, ContributorRepository contributorRepository, JWTGenerator jwtGenerator, ModelMapper modelMapper) {
         this.documentRepository = documentRepository;
         this.contributorRepository = contributorRepository;
+        this.jwtGenerator = jwtGenerator;
         this.modelMapper = modelMapper;
     }
 
@@ -30,5 +37,25 @@ public class DocumentService {
         Document document = documentRepository.findById(documentId).orElseThrow(
                 () -> new ResourceNotFoundException("Document does not exist"));
         return modelMapper.map(document, DocumentDTO.class);
+    }
+
+    public List<DocumentDTO> getDocuments(String bearerToken) throws BadRequest {
+        if(!(StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer "))) {
+            throw new BadRequest("Username is required");
+        }
+
+        String username = jwtGenerator.getUsernameFromJWT(bearerToken.substring(7, bearerToken.length()));
+
+        List<DocumentDTO> documents = documentRepository.findDocumentsByUsername(username);
+
+        for (DocumentDTO document : documents) {
+            System.out.println(document.getName());
+        }
+
+        return documents;
+    }
+
+    public void createDocument(Document document) {
+        documentRepository.save(document);
     }
 }

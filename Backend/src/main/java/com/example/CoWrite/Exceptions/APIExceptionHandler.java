@@ -16,4 +16,13 @@ public class APIExceptionHandler {
 
         return new ResponseEntity<>(apiException, notFound);
     }
+
+    @ExceptionHandler(value = {BadRequest.class})
+    public ResponseEntity<Object> handleBadRequestException(BadRequest e) {
+        HttpStatus badRequest = HttpStatus.BAD_REQUEST;
+        int statusCode = HttpStatus.BAD_REQUEST.value();
+        APIException apiException = new APIException(e.getMessage(), badRequest, statusCode);
+
+        return new ResponseEntity<>(apiException, badRequest);
+    }
 }

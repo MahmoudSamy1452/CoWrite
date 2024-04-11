@@ -7,6 +7,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @RestController
 @RequestMapping(path = "api/v1/document")
 public class DocumentController {
@@ -24,5 +27,18 @@ public class DocumentController {
     @GetMapping("/{documentId}")
     public Document getDocument(@PathVariable Long documentId) throws ResourceNotFoundException {
         return modelMapper.map(documentService.getDocument(documentId), Document.class);
+    }
+
+    @GetMapping("/all")
+    public List<Document> getDocuments(@RequestHeader("Authorization") String bearerToken) {
+        return documentService.getDocuments(bearerToken)
+                .stream()
+                .map(documentDTO -> modelMapper.map(documentDTO, Document.class))
+                .collect(Collectors.toList());
+    }
+
+    @PostMapping("")
+    public void createDocument(@RequestBody Document document) {
+        documentService.createDocument(document);
     }
 }
