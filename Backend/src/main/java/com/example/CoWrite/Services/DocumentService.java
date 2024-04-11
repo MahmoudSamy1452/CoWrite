@@ -1,6 +1,8 @@
 package com.example.CoWrite.Services;
 
 import com.example.CoWrite.DTOs.DocumentDTO;
+import com.example.CoWrite.Exceptions.APIException;
+import com.example.CoWrite.Exceptions.CouldNotDeleteException;
 import com.example.CoWrite.Exceptions.BadRequest;
 import com.example.CoWrite.Exceptions.ResourceNotFoundException;
 import com.example.CoWrite.Models.Document;
@@ -57,5 +59,24 @@ public class DocumentService {
 
     public void createDocument(Document document) {
         documentRepository.save(document);
+    }
+
+    public DocumentDTO renameDocument(Long documentId, String newName) throws ResourceNotFoundException {
+        Document document = documentRepository.findById(documentId).orElseThrow(
+                () -> new ResourceNotFoundException("Document does not exist"));
+        document.setName(newName);
+        documentRepository.save(document);
+        return modelMapper.map(document, DocumentDTO.class);
+    }
+
+    public void deleteDocument(Long documentId) throws ResourceNotFoundException, CouldNotDeleteException {
+        Document document = documentRepository.findById(documentId).orElseThrow(
+                () -> new ResourceNotFoundException("Document does not exist"));
+        try {
+            documentRepository.delete(document);
+        }
+        catch (Exception e) {
+            throw new CouldNotDeleteException("Document could not be deleted" + e.getMessage());
+        }
     }
 }
