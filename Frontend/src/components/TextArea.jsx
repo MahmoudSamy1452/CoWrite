@@ -20,7 +20,7 @@ const TextArea = () => {
   return (
     <div
       onClick={focusEditor}
-      className="h-[500px] w-[500px] text-black bg-blue-500"
+      className="m-auto h-[500px] w-[500px] text-black bg-blue-500"
     >
       <Editor
         ref={editor}
@@ -36,7 +36,6 @@ var INLINE_STYLES = [
   { label: "Bold", style: "BOLD" },
   { label: "Italic", style: "ITALIC" },
 ];
-
 
 
 const InlineStyleControls = (props) => {

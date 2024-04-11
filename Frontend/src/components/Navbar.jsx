@@ -15,7 +15,7 @@ const Navbar = () => {
           </li>
           <li className="inline py-2 ml-auto">
             <Link
-              to="/signup"
+              to="/home"
               className="py-2 px-2 rounded text-white hover:text-gray-600 duration-300"
             >
               Return
