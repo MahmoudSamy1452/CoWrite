@@ -1,5 +1,6 @@
 package com.example.CoWrite.Services;
 
+import com.example.CoWrite.Exceptions.ResourceNotFoundException;
 import com.example.CoWrite.Models.User;
 import com.example.CoWrite.Repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,10 @@ public class UserService implements UserDetailsService {
             throw new IllegalArgumentException("Username already exists");
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
+    }
+
+    public User getUser(String username) throws ResourceNotFoundException{
+        return userRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
     @Override

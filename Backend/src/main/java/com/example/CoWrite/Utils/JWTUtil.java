@@ -3,10 +3,12 @@ package com.example.CoWrite.Utils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.Getter;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -15,10 +17,9 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
 
-@Component
-
 @Getter
-public class JWTGenerator {
+@Component
+public class JWTUtil {
 
     static Map<String, String> env = System.getenv();
     private static final String jwt = env.get("JWT_SECRET_KEY");
@@ -65,5 +66,13 @@ public class JWTGenerator {
             System.out.println(ex);
             throw new AuthenticationCredentialsNotFoundException("JWT was expired or incorrect",ex.fillInStackTrace());
         }
+    }
+
+    public String getJWTFromRequest(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if(StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7, bearerToken.length());
+        }
+        return null;
     }
 }

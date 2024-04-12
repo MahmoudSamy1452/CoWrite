@@ -15,6 +15,7 @@ public class User {
     @Id
     private String username;
 
+    @Column(nullable = false)
     private String password;
 
 }
