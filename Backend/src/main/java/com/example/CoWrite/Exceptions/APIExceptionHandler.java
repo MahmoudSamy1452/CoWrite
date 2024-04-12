@@ -17,12 +17,30 @@ public class APIExceptionHandler {
         return new ResponseEntity<>(apiException, notFound);
     }
 
-    @ExceptionHandler(value = {BadRequest.class})
-    public ResponseEntity<Object> handleBadRequestException(BadRequest e) {
+    @ExceptionHandler(value = {BadRequestException.class})
+    public ResponseEntity<Object> handleBadRequestException(BadRequestException e) {
         HttpStatus badRequest = HttpStatus.BAD_REQUEST;
         int statusCode = HttpStatus.BAD_REQUEST.value();
         APIException apiException = new APIException(e.getMessage(), badRequest, statusCode);
 
         return new ResponseEntity<>(apiException, badRequest);
+    }
+
+    @ExceptionHandler(value = {UnauthorizedException.class})
+    public ResponseEntity<Object> handleUnauthorizedException(UnauthorizedException e) {
+        HttpStatus unauthorized = HttpStatus.UNAUTHORIZED;
+        int statusCode = HttpStatus.UNAUTHORIZED.value();
+        APIException apiException = new APIException(e.getMessage(), unauthorized, statusCode);
+
+        return new ResponseEntity<>(apiException, unauthorized);
+    }
+
+    @ExceptionHandler(value = {CouldNotDeleteException.class})
+    public ResponseEntity<Object> handleCouldNotDeleteException(CouldNotDeleteException e) {
+        HttpStatus internalServerError = HttpStatus.INTERNAL_SERVER_ERROR;
+        int statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
+        APIException apiException = new APIException(e.getMessage(), internalServerError, statusCode);
+
+        return new ResponseEntity<>(apiException, internalServerError);
     }
 }
