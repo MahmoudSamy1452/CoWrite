@@ -2,15 +2,14 @@ package com.example.CoWrite.Services;
 
 import com.example.CoWrite.DTOs.DocumentDTO;
 import com.example.CoWrite.Exceptions.CouldNotDeleteException;
-import com.example.CoWrite.Exceptions.BadRequest;
+import com.example.CoWrite.Exceptions.BadRequestException;
 import com.example.CoWrite.Exceptions.ResourceNotFoundException;
 import com.example.CoWrite.Models.Document;
 import com.example.CoWrite.Repositories.DocumentRepository;
-import com.example.CoWrite.Utils.JWTGenerator;
+import com.example.CoWrite.Utils.JWTUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.util.Date;
 import java.util.List;
@@ -20,14 +19,14 @@ public class DocumentService {
 
     private final DocumentRepository documentRepository;
 
-    private final JWTGenerator jwtGenerator;
+    private final JWTUtil jwtUtil;
 
     private final ModelMapper modelMapper;
 
     @Autowired
-    public DocumentService(DocumentRepository documentRepository, JWTGenerator jwtGenerator, ModelMapper modelMapper) {
+    public DocumentService(DocumentRepository documentRepository, JWTUtil jwtUtil, ModelMapper modelMapper) {
         this.documentRepository = documentRepository;
-        this.jwtGenerator = jwtGenerator;
+        this.jwtUtil = jwtUtil;
         this.modelMapper = modelMapper;
     }
 
@@ -37,19 +36,13 @@ public class DocumentService {
         return modelMapper.map(document, DocumentDTO.class);
     }
 
-    public List<DocumentDTO> getDocuments(String bearerToken) throws BadRequest {
-        if(!(StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer "))) {
-            throw new BadRequest("Username is required");
-        }
-
-        String username = jwtGenerator.getUsernameFromJWT(bearerToken.substring(7, bearerToken.length()));
-
+    public List<DocumentDTO> getDocuments(String username) throws BadRequestException {
         return documentRepository.findDocumentsByUsername(username);
     }
 
-    public void createDocument(Document document) {
+    public void createDocument(Document document) throws BadRequestException {
         if (document.getName() == null || document.getName().isEmpty()) {
-            throw new BadRequest("Document name is required");
+            throw new BadRequestException("Document name is required");
         }
         document.setCreatedAt(new Date());
         document.setContent("");

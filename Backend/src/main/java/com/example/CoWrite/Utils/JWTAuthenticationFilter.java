@@ -1,6 +1,5 @@
 package com.example.CoWrite.Utils;
 
-import com.example.CoWrite.Models.User;
 import com.example.CoWrite.Services.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -19,7 +18,7 @@ import java.io.IOException;
 public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
-    private JWTGenerator tokenGenerator;
+    private JWTUtil jwtUtil;
     @Autowired
     private UserService userService;
 
@@ -27,10 +26,10 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        String token = getJWTFromRequest(request);
-        if(StringUtils.hasText(token) && tokenGenerator.validateToken(token)) {
-            String username = tokenGenerator.getUsernameFromJWT(token);
-
+        String token = jwtUtil.getJWTFromRequest(request);
+        if(StringUtils.hasText(token) && jwtUtil.validateToken(token)) {
+            String username = jwtUtil.getUsernameFromJWT(token);
+            request.setAttribute("username", username);
             UserDetails userDetails = userService.loadUserByUsername(username);
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null,
                     userDetails.getAuthorities());
@@ -38,13 +37,5 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         }
         filterChain.doFilter(request, response);
-    }
-
-    private String getJWTFromRequest(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if(StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7, bearerToken.length());
-        }
-        return null;
     }
 }
