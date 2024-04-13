@@ -24,20 +24,21 @@ public class ContributorService {
         this.userService = userService;
     }
 
-    public Contributor shareDocument(Contributor contributor) throws ResourceNotFoundException, BadRequestException {
+    public void shareDocument(Contributor contributor) throws ResourceNotFoundException, BadRequestException {
 //        Check if the user is already a contributor to the document
         Contributor existingContributor = contributorRepository.findByUsernameAndDocument(contributor.getUsername(), contributor.getDocument());
         if (existingContributor != null && existingContributor.getRole() == contributor.getRole()) {
-            throw new BadRequestException("User is already a " + (contributor.getRole() == 'v' ? "viewer" : "editor") + " to the document");
+            throw new BadRequestException("User is already " + (contributor.getRole() == 'v' ? "a viewer" : "an editor") + " to the document");
         }
         if (contributor.getRole() != 'e' && contributor.getRole() != 'v')
             throw new BadRequestException("Can only share with an editor or a viewer");
         try {
             if (existingContributor != null){
                 existingContributor.setRole(contributor.getRole());
-                return contributorRepository.save(existingContributor);
+                contributorRepository.save(existingContributor);
             }
-            return contributorRepository.save(contributor);
+            else
+                contributorRepository.save(contributor);
         } catch (DataAccessException e) {
             throw new ResourceNotFoundException(e.getMessage());
         }

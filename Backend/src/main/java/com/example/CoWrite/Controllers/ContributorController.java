@@ -22,9 +22,10 @@ public class ContributorController {
     }
 
     @PostMapping("/share")
-    public ResponseEntity<Contributor> shareDocument(@RequestAttribute("username") String username, @RequestBody Contributor contributor) throws ResourceNotFoundException, BadRequestException {
+    public ResponseEntity<String> shareDocument(@RequestAttribute("username") String username, @RequestBody Contributor contributor) throws ResourceNotFoundException, BadRequestException {
         if(contributorService.isOwner(username, contributor.getDocument().getId()) && contributorService.isEditor(username, contributor.getDocument().getId()))
             throw new UnauthorizedException("Only owners and editors of a document can share it");
-        return ResponseEntity.status(200).body(contributorService.shareDocument(contributor));
+        contributorService.shareDocument(contributor);
+        return ResponseEntity.status(200).body("Document shared successfully");
     }
 }
