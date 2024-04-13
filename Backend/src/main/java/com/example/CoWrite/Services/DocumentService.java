@@ -45,6 +45,7 @@ public class DocumentService {
             throw new BadRequestException("Document name is required");
         }
         document.setCreatedAt(new Date());
+        document.setUpdatedAt(new Date());
         document.setContent("");
         documentRepository.save(document);
     }
@@ -66,5 +67,14 @@ public class DocumentService {
         catch (Exception e) {
             throw new CouldNotDeleteException("Document could not be deleted" + e.getMessage());
         }
+    }
+
+    public Object saveDocument(Long documentId, String content) throws ResourceNotFoundException{
+        Document document = documentRepository.findById(documentId).orElseThrow(
+                () -> new ResourceNotFoundException("Document does not exist"));
+        document.setContent(content);
+        document.setUpdatedAt(new Date());
+        documentRepository.save(document);
+        return modelMapper.map(document, DocumentDTO.class);
     }
 }

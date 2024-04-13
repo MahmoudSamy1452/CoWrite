@@ -58,6 +58,15 @@ public class DocumentController {
         return ResponseEntity.status(201).build();
     }
 
+    @PutMapping("/save/{documentId}")
+    public ResponseEntity<Document> saveDocument(@RequestAttribute("username") String username, @PathVariable Long documentId, @RequestBody Map<String, String> requestBody) throws ResourceNotFoundException, UnauthorizedException {
+        if(!contributorService.isOwner(username, documentId) && !contributorService.isEditor(username, documentId))
+            throw new UnauthorizedException("Only owners and editors can save documents");
+        String content = requestBody.get("content");
+        Document document = modelMapper.map(documentService.saveDocument(documentId, content), Document.class);
+        return ResponseEntity.status(200).body(document);
+    }
+
     @PutMapping("/rename/{documentId}")
     public ResponseEntity<Document> renameDocument(@RequestAttribute("username") String username, @PathVariable Long documentId, @RequestBody Map<String, String> requestBody) throws ResourceNotFoundException, UnauthorizedException {
         if(!contributorService.isOwner(username, documentId) && !contributorService.isEditor(username, documentId))
