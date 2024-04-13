@@ -1,6 +1,44 @@
+import axios from "axios";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuthContext } from "../hooks/useAuthContext";
+import { VITE_BACKEND_URL } from "../../config.js";
+
 const LoginForm = () => {
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+  const { dispatch } = useAuthContext();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    axios.defaults.withCredentials = true;
+
+    axios.post(`${VITE_BACKEND_URL}/auth/login`, {
+      username: e.target.username.value,
+      password: e.target.password.value,
+    })
+    .then((res) => {
+      if (res.status === 200) {
+        console.log(res)
+        dispatch({ type: 'LOGIN', user: e.target.username.value, token: res.data.accessToken });
+        navigate('/home');
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      setError("Invalid username or password");
+    });
+  }
+
   return (
-    <form className="m-auto border border-white-300 rounded" action="">
+    <form className="m-auto border border-white-300 rounded" onSubmit={handleSubmit}>
+      {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+            <strong className="font-bold">Error!</strong>
+            <br />
+            <span className="block sm:inline"> {error}</span>
+          </div>
+      )}
       <p className="text-blue-500 text-3xl mt-5">Log In!</p>
       <div className="relative mt-6">
         <input

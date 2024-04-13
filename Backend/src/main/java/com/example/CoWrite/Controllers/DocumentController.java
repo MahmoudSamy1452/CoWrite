@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 import java.util.Map;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:5137")
 @RequestMapping(path = "/api/v1/document")
 public class DocumentController {
 
