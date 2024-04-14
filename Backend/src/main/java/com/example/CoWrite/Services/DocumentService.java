@@ -40,14 +40,15 @@ public class DocumentService {
         return documentRepository.findDocumentsByUsername(username);
     }
 
-    public void createDocument(Document document) throws BadRequestException {
+    public Document createDocument(Document document) throws BadRequestException {
         if (document.getName() == null || document.getName().isEmpty()) {
             throw new BadRequestException("Document name is required");
         }
         document.setCreatedAt(new Date());
         document.setUpdatedAt(new Date());
         document.setContent("");
-        documentRepository.save(document);
+        System.out.println("help");
+        return documentRepository.save(document);
     }
 
     public DocumentDTO renameDocument(Long documentId, String newName) throws ResourceNotFoundException {

@@ -54,9 +54,9 @@ public class DocumentController {
 
     @PostMapping("")
     public ResponseEntity<Object> createDocument(@RequestAttribute("username") String username, @RequestBody Document document) throws ResourceNotFoundException, BadRequestException {
-        documentService.createDocument(document);
+        Document newDocument = documentService.createDocument(document);
         contributorService.setOwner(username, document);
-        return ResponseEntity.status(201).build();
+        return ResponseEntity.status(201).body(newDocument);
     }
 
     @PutMapping("/save/{documentId}")
