@@ -16,7 +16,7 @@ function App() {
         <Route path="/signup" element={<AnonymousRoute><SignUp /></AnonymousRoute>} />
         <Route path="/login" element={<AnonymousRoute><Login /></AnonymousRoute>} />
         <Route path="/home" element={<PrivateRoute><Documents /></PrivateRoute>} />
-        <Route path="/edit" element={<PrivateRoute><EditPage /></PrivateRoute>} />
+        <Route path="/view/:id" element={<PrivateRoute><EditPage /></PrivateRoute>} />
       </Routes>
     </BrowserRouter>
   )
