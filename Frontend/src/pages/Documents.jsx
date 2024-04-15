@@ -1,5 +1,4 @@
 import Document from "../components/document";
-import InputModal from "../components/InputModal.jsx";
 import axios from "axios";
 import moment from "moment";
 import { useAuthContext } from "../hooks/useAuthContext";
@@ -31,7 +30,7 @@ const Documents = () => {
   }
 
   useEffect(() => {
-    if(isOpen === -1)
+    if(isOpen < 0)
       fetchDocuments();
   }, [isOpen]);
 

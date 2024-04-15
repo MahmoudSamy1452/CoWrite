@@ -56,7 +56,7 @@ function CustomModal(props) {
 
   return (
     <>
-      <Modal position="center" show={props.isOpen >= 0} size="md" popup onClose={closeModal}>
+      <Modal className="w-[300px] m-auto" show={props.isOpen >= 0} size="md" popup onClose={closeModal}>
         <Modal.Header />
         {error && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 mx-3 py-3 rounded relative">
