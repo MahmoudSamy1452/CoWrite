@@ -37,10 +37,10 @@ const Documents = () => {
   return ( 
     <>
       <CustomModal isOpen={isOpen} setIsOpen={setIsOpen} action={action}></CustomModal>
-      <div className="h-full text-blue-500 mt-10">
+      <div className="h-full text-blue-500 mt-16">
         <div className="bg-slate-100 p-20 py-5 text-left">
           <h4 className="text-left mb-5">Start a new document</h4>
-          <img src="docs-blank-googlecolors.png" width="180px" alt="new document" onClick={() => {setAction("Create"); setIsOpen(0)}}/>
+          <img className="cursor-pointer" src="docs-blank-googlecolors.png" width="180px" alt="new document" onClick={() => {setAction("Create"); setIsOpen(0)}}/>
         </div>
         <div className="flex justify-between p-5">
           <h4 className="text-left p-20 py-7">Recent documents</h4>

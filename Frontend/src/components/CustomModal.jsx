@@ -1,4 +1,4 @@
-import { Button, Checkbox, Label, Modal, TextInput } from "flowbite-react";
+import { Button, Label, Modal, TextInput } from "flowbite-react";
 import axios from "axios";
 import { VITE_BACKEND_URL } from "../../config";
 import { useEffect, useState } from "react";

@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import { Editor } from "react-draft-wysiwyg";
-import { EditorState } from "draft-js";
+import { EditorState, convertToRaw } from "draft-js";
 
 const TextArea = () => {
   const [editorState, setEditorState] = useState(
@@ -18,27 +18,28 @@ const TextArea = () => {
   //   focusEditor();
   // }, []);
 
+  console.log(convertToRaw(editorState.getCurrentContent()))
+
   return (
-    <div className="flex w-full h-full">
-      <div
+    <div className="bg-[#F8F9FA] min-h-screen pb-16 text-black">
+      {/* <div
         // onClick={focusEditor}
         className="m-auto w-[40rem] h-96 text-black bg-[#f9f8fa] border-2 border-gray-300 rounded-md shadow-md p-2"
-      >
+      > */}
         <Editor
           // ref={editor}
           editorState={editorState}
-          onChange={(editorState) => setEditorState(editorState)}
+          onEditorStateChange={(editorState) => setEditorState(editorState)}
           textAlignment="left"
           toolbar={{
             options: ['inline'],
             inline: { options: ['bold', 'italic'] },
             className: "overflow-y-auto",
           }}
-          toolbarClassName="flex sticky top-0 z-50 !justify-center mx-auto !border-0 !border-b-2 !border-[#ccc] shadow-md"
-          // editorClassName="mt-6 bg-white p-5 shadow-lg min-h-[1300px] max-w-5xl mx-auto mb-12 border-2 rounded-sm border-gray-300"
-          // editorStyle={{ minHeight: "1300px" }}
+          toolbarClassName="flex sticky top-11 z-50 !justify-center mx-auto !border-0 !border-b-2 !border-[#ccc] shadow-md"
+          editorClassName="m-20 bg-white p-5 shadow-lg min-h-[1300px] min-w-[700px] md:min-w-[700] max-w-5xl mx-auto border-2 rounded-sm border-gray-300"
         />
-      </div>
+      {/* </div> */}
     </div>
   );
 };

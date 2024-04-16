@@ -3,9 +3,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare, faTrashCan } from '@fortawesome/free-regular-svg-icons';
 import { useAuthContext } from '../hooks/useAuthContext';
 import { VITE_BACKEND_URL } from "../../config.js";
+import { useNavigate } from 'react-router-dom';
 
 const Document = (props) => {
   const { token } = useAuthContext();
+  const navigate = useNavigate();
 
   const fetchCover = (e) => {
     axios.get(`http://www.colourlovers.com/api/colors?format=json`)
@@ -39,7 +41,7 @@ const Document = (props) => {
   return (
     <>
       {props.view === "table" && (
-        <div className="flex w-full justify-between p-5 bg-slate-100 hover:bg-slate-200 hover:shadow-l hover:cursor-pointer transition duration-500 ease-in-out">
+        <div className="flex w-full justify-between p-5 bg-slate-100 hover:bg-slate-200 hover:shadow-l hover:cursor-pointer transition duration-500 ease-in-out" onClick={() => {navigate(`/view/${props.id}`)}}>
           <div className='flex gap-3'>
             <h3 className='text-lg'>{props.title}</h3>
             <FontAwesomeIcon className="self-center" icon={faPenToSquare} onClick={() => {
@@ -50,7 +52,8 @@ const Document = (props) => {
         </div>
       )}
       {props.view === "grid" && (
-        <div className="flex flex-col rounded-lg overflow-hidden hover:bg-slate-100 hover:shadow-l hover:cursor-pointer transition duration-500 ease-in-out">
+        <div className="flex flex-col rounded-lg overflow-hidden hover:bg-slate-100 hover:shadow-l hover:cursor-pointer transition duration-500 ease-in-out"
+        onClick={() => {navigate(`/view/${props.id}`)}}>
           <img src="preview.jpg" className="max-h-48" alt="preview" />
           <div className="p-3">
             <div className='flex gap-3 justify-center'>
