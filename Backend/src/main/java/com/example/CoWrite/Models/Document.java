@@ -29,6 +29,6 @@ public class Document {
     @LastModifiedDate
     private Date updatedAt;
 
-    @OneToMany(mappedBy = "document", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "document", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private List<Contributor> contributors;
 }

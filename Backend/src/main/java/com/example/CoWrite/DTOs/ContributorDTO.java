@@ -12,11 +12,9 @@ import lombok.NoArgsConstructor;
 @Data
 public class ContributorDTO {
 
-    private Long id;
+    private String username;
 
-    private User username;
-
-    private Document document;
+    private Long document;
 
     private char role;
 }

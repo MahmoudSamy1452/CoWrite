@@ -11,6 +11,6 @@ import org.springframework.stereotype.Repository;
 public interface ContributorRepository extends JpaRepository<Contributor, Long> {
     Contributor findByUsernameAndDocument(User username, Document document);
 
-    @Query("SELECT new com.example.CoWrite.DTOs.ContributorDTO(c.id, c.username, c.document, c.role) FROM Contributor c WHERE c.username.username = ?1 AND c.document.id = ?2")
+    @Query("SELECT new com.example.CoWrite.DTOs.ContributorDTO(c.username.username , c.document.id, c.role) FROM Contributor c WHERE c.username.username = ?1 AND c.document.id = ?2")
     com.example.CoWrite.DTOs.ContributorDTO findByUsernameAndDocument(String username, Long documentId);
 }
