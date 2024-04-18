@@ -4,6 +4,7 @@ import { faPenToSquare, faTrashCan } from '@fortawesome/free-regular-svg-icons';
 import { useAuthContext } from '../hooks/useAuthContext';
 import { VITE_BACKEND_URL } from "../../config.js";
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 const Document = (props) => {
   const { token } = useAuthContext();
@@ -30,11 +31,12 @@ const Document = (props) => {
       props.setIsOpen(prev => {
         console.log(prev-1);
         return prev-1;
-      }
-      );
+      });
+      toast.success("Document deleted successfully");
     })
     .catch((error) => {
       console.log(error);
+      toast.error("Document deletion failed. Please try again");
     });
   }
 
@@ -44,9 +46,9 @@ const Document = (props) => {
         <div className="flex w-full justify-between p-5 bg-slate-100 hover:bg-slate-200 hover:shadow-l hover:cursor-pointer transition duration-500 ease-in-out" onClick={() => {navigate(`/view/${props.id}`)}}>
           <div className='flex gap-3'>
             <h3 className='text-lg'>{props.title}</h3>
-            <FontAwesomeIcon className="self-center" icon={faPenToSquare} onClick={() => {
-                props.setAction("Rename"); props.setIsOpen(props.id)}} />
-            <FontAwesomeIcon className="self-center" icon={faTrashCan} onClick={deleteDocument} />
+            <FontAwesomeIcon className="self-center" icon={faPenToSquare} onClick={(e) => {
+                props.setAction("Rename"); props.setIsOpen(props.id); e.stopPropagation(); }} />
+            <FontAwesomeIcon className="self-center" icon={faTrashCan} onClick={(e) => {e.stopPropagation();deleteDocument();}} />
           </div>
           <p>Last Edited: {props.lastEdited}</p>
         </div>
@@ -58,9 +60,9 @@ const Document = (props) => {
           <div className="p-3">
             <div className='flex gap-3 justify-center'>
               <h3 className='text-lg'>{props.title}</h3>
-              <FontAwesomeIcon className="self-center" icon={faPenToSquare} onClick={() => {
-                props.setAction("Rename"); props.setIsOpen(props.id)}} />
-              <FontAwesomeIcon className="self-center" icon={faTrashCan} onClick={deleteDocument} />
+              <FontAwesomeIcon className="self-center" icon={faPenToSquare} onClick={(e) => {
+                props.setAction("Rename"); props.setIsOpen(props.id); e.stopPropagation(); }} />
+              <FontAwesomeIcon className="self-center" icon={faTrashCan} onClick={(e) => {e.stopPropagation();deleteDocument();}} />
             </div>
             <p>Last Edited: {props.lastEdited}</p>
           </div>

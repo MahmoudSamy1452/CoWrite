@@ -1,45 +1,39 @@
 import { Button, Label, Modal, TextInput } from "flowbite-react";
+import { toast } from "sonner"
 import axios from "axios";
 import { VITE_BACKEND_URL } from "../../config";
 import { useEffect, useState } from "react";
 import { useAuthContext } from "../hooks/useAuthContext";
-import { useNavigate } from "react-router-dom";
 
 function CustomModal(props) {
   const [inputValue, setInputValue] = useState("");
   const [ error, setError ] = useState(null);
   const { token } = useAuthContext();
-  const navigate = useNavigate();
 
   const setTitle = (e) => {
     axios.defaults.withCredentials = true;
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    let req;
-    if(props.action === "Create")
-      req = axios.post(`${VITE_BACKEND_URL}/document`, {
+    if(props.action === "Create") {
+      axios.post(`${VITE_BACKEND_URL}/document`, {
         name: inputValue
-      })
-    else
-      req = axios.put(`${VITE_BACKEND_URL}/document/rename/${props.isOpen}`, {
+      }).then((res) => {
+        toast.success("Document created successfully")
+      }).catch((error) => {
+        toast.error("Document creation failed. Please try again")
+      });
+    } else {
+      axios.put(`${VITE_BACKEND_URL}/document/rename/${props.isOpen}`, {
         name: inputValue
-      })
-    req.then((res) => {
-        if (res.status === 200) {
-          console.log(res.data);
-        }
-        if(props.action === "Create")
-          navigate(`/view/${res.data.id}`);
-        closeModal();
+      }).then((res) => {
+        toast.success("Document renamed successfully")
       })
       .catch((error) => {
-        console.log(error.response.data.message);
-        setError(error.response.data.message);
+        console.log(error);
+        toast.error("Document rename failed. Please try again")
       });
+    }
+    closeModal();
   }
-
-  useEffect(() => {
-    console.log(error);
-  }, [error]);
 
   const updateValue = (e) => {
     setInputValue(e.target.value);
@@ -56,7 +50,7 @@ function CustomModal(props) {
 
   return (
     <>
-      <Modal className="w-[300px] m-auto" show={props.isOpen >= 0} size="md" popup onClose={closeModal}>
+      <Modal className="w-[300px] mt-20 mx-auto rounded-sm" show={props.isOpen >= 0} size="md" popup onClose={closeModal}>
         <Modal.Header />
         {error && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 mx-3 py-3 rounded relative">

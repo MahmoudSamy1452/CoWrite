@@ -36,7 +36,7 @@ const TextArea = () => {
             inline: { options: ['bold', 'italic'] },
             className: "overflow-y-auto",
           }}
-          toolbarClassName="flex sticky top-11 z-50 !justify-center mx-auto !border-0 !border-b-2 !border-[#ccc] shadow-md"
+          toolbarClassName="flex sticky top-11 z-50 w-[98.5vw] mx-auto !border-0 !border-b-2 !border-[#ccc] shadow-md"
           editorClassName="m-20 bg-white p-5 shadow-lg min-h-[1300px] min-w-[700px] md:min-w-[700] max-w-5xl mx-auto border-2 rounded-sm border-gray-300"
         />
       {/* </div> */}

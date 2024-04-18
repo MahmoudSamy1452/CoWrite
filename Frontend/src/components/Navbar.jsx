@@ -13,12 +13,13 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="bg-blue-500 fixed top-0 left-0 right-0 z-50 h-11 mb-10">
+      <nav className="bg-white text-black fixed top-0 left-0 right-0 z-50 mb-10">
         <ul className="inner font-medium flex w-full px-4">
-          <li className="inline py-2">
+          <li className="flex py-2 justify-center align-middle">
+            <img src="./cowrite-logo.svg" className="w-14" alt="CoWrite Logo" />
             <Link
-              to="/login"
-              className="py-2 px-2 rounded text-white hover:text-gray-600 duration-300"
+              to="/home"
+              className="py-2 px-2 rounded hover:text-gray-600 duration-300"
             >
               CoWrite
             </Link>
@@ -39,27 +40,27 @@ const Navbar = () => {
               Save
             </Link>
           </li> */}
-          <li className="inline py-2 ml-auto">
+          <li className="flex py-2 ml-auto">
             {!user ? (
               <>
                 <Link
-                  to="/login"
-                  className="py-2 px-2 rounded text-white hover:text-gray-600 duration-300"
+                  to="/"
+                  className="py-2 px-2 rounded hover:text-gray-600 duration-300"
                 >
                   Login
                 </Link>
                 <Link
                   to="/signup"
-                  className="py-2 px-2 rounded text-white hover:text-gray-600 duration-300"
+                  className="py-2 px-2 rounded hover:text-gray-600 duration-300"
                 >
                   Sign up
                 </Link>
               </>
             ) : (
               <>
-                <span className="px-2 text-white hover:text-gray-600 duration-300">Logged in as {user}</span>
+                <span className="py-2 px-2 hover:text-gray-600 duration-300">Logged in as {user}</span>
                 <span
-                  className="py-2 px-4 rounded text-white font-bold hover:cursor-pointer hover:text-gray-600 duration-300"
+                  className="py-2 px-4 rounded font-bold hover:cursor-pointer hover:text-gray-600 duration-300"
                   onClick={handleLogout}
                 >
                   Logout
