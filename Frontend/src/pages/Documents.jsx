@@ -7,7 +7,11 @@ import { VITE_BACKEND_URL } from "../../config.js";
 import CustomModal from "../components/CustomModal";
 import ShareModal from "../components/ShareModal";
 
-const colors = ['bg-[#fbbc05]', 'bg-[#ea4335]', 'bg-[#4285f4]', 'bg-[#34a853]'];
+const colors = {
+  'v': 'bg-[#fbbc05]',
+  'e': 'bg-[#34a853]',
+  'o': 'bg-[#4285f4]',
+}
 
 const Documents = () => {
   const { token } = useAuthContext();
@@ -67,7 +71,7 @@ const Documents = () => {
                 view={view}
                 setIsOpen={setIsOpen}
                 setAction={setAction}
-                color={colors[document.id % colors.length]}
+                color={colors[document.role]}
               />
               );
           })}

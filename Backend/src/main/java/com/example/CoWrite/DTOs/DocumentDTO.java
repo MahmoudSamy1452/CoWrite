@@ -20,4 +20,6 @@ public class DocumentDTO {
     private Date createdAt;
 
     private Date updatedAt;
+
+    private char role;
 }

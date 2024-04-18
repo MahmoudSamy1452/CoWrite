@@ -1,5 +1,6 @@
 package com.example.CoWrite.Controllers;
 
+import com.example.CoWrite.DTOs.DocumentDTO;
 import com.example.CoWrite.Exceptions.BadRequestException;
 import com.example.CoWrite.Exceptions.CouldNotDeleteException;
 import com.example.CoWrite.Exceptions.ResourceNotFoundException;
@@ -44,10 +45,10 @@ public class DocumentController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<Document>> getDocuments(@RequestAttribute("username") String username) throws BadRequestException {
-        List<Document> documents = documentService.getDocuments(username)
+    public ResponseEntity<List<DocumentDTO>> getDocuments(@RequestAttribute("username") String username) throws BadRequestException {
+        List<DocumentDTO> documents = documentService.getDocuments(username)
                 .stream()
-                .map(documentDTO -> modelMapper.map(documentDTO, Document.class))
+                .map(documentDTO -> modelMapper.map(documentDTO, DocumentDTO.class))
                 .collect(Collectors.toList());
         return ResponseEntity.status(200).body(documents);
     }

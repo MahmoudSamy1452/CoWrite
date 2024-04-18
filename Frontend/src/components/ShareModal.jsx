@@ -71,13 +71,7 @@ function ShareModal(props) {
               <div className="mb-2 block">
                 <Label htmlFor="username" value="Username" />
               </div>
-              <TextInput id="username" placeholder="" onKeyUp={updateValue} required />
-              {/* <Dropdown className="z-30" label="Dropdown button" dismissOnClick={false}>
-                <Dropdown.Item>Dashboard</Dropdown.Item>
-                <Dropdown.Item>Settings</Dropdown.Item>
-                <Dropdown.Item>Earnings</Dropdown.Item>
-                <Dropdown.Item>Sign out</Dropdown.Item>
-              </Dropdown> */}
+              <TextInput className="focus:!ring-blue-500" id="username" placeholder="" onKeyUp={updateValue} required />
               <RoleSelect roles={roles} role={role} setRole={setRole}/>
             </div>
             <div className="flex justify-center text-blue-400">
