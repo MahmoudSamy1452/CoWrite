@@ -5,6 +5,9 @@ import { useAuthContext } from "../hooks/useAuthContext";
 import { useEffect, useState } from "react";
 import { VITE_BACKEND_URL } from "../../config.js";
 import CustomModal from "../components/CustomModal";
+import ShareModal from "../components/ShareModal";
+
+const colors = ['bg-[#fbbc05]', 'bg-[#ea4335]', 'bg-[#4285f4]', 'bg-[#34a853]'];
 
 const Documents = () => {
   const { token } = useAuthContext();
@@ -29,13 +32,16 @@ const Documents = () => {
   }
 
   useEffect(() => {
+    console.log(isOpen)
     if(isOpen < 0)
+      console.log("fetching documents")
       fetchDocuments();
   }, [isOpen]);
 
   return ( 
     <>
       <CustomModal isOpen={isOpen} setIsOpen={setIsOpen} action={action}></CustomModal>
+      <ShareModal isOpen={isOpen} setIsOpen={setIsOpen} action={action}></ShareModal>
       <div className="h-full text-blue-500 mt-16">
         <div className="bg-slate-100 p-20 py-5 text-left">
           <h4 className="text-left mb-5">Start a new document</h4>
@@ -61,6 +67,7 @@ const Documents = () => {
                 view={view}
                 setIsOpen={setIsOpen}
                 setAction={setAction}
+                color={colors[document.id % colors.length]}
               />
               );
           })}

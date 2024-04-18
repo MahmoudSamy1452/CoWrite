@@ -8,7 +8,7 @@ const Navbar = () => {
 
   const handleLogout = () => {
     dispatch({ type: 'LOGOUT'});
-    navigate('/login');
+    navigate('/');
   }
 
   return (
@@ -19,7 +19,7 @@ const Navbar = () => {
             <img src="./cowrite-logo.svg" className="w-14" alt="CoWrite Logo" />
             <Link
               to="/home"
-              className="py-2 px-2 rounded hover:text-gray-600 duration-300"
+              className="text-blue-800 hover:text-transparent bg-clip-text transition-all hover:bg-gradient-to-r from-yellow-400 via-green-500 to-blue-600 m-auto"
             >
               CoWrite
             </Link>
