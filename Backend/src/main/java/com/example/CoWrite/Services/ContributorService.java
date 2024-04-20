@@ -30,6 +30,8 @@ public class ContributorService {
         if (existingContributor != null && existingContributor.getRole() == contributor.getRole()) {
             throw new BadRequestException("User is already " + (contributor.getRole() == 'v' ? "a viewer" : "an editor") + " to the document");
         }
+        if (existingContributor != null && existingContributor.getRole() == 'o')
+            throw new BadRequestException("Cannot change the owner of the document");
         if (contributor.getRole() != 'e' && contributor.getRole() != 'v')
             throw new BadRequestException("Can only share with an editor or a viewer");
         try {
