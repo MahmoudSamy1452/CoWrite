@@ -1,14 +1,15 @@
-import { useRef, useEffect, useState } from 'react';
-import { EditorState } from '@codemirror/state';
-import { EditorView, keymap } from '@codemirror/view';
-import { defaultKeymap } from '@codemirror/commands';
+import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
+import Doc from '../CRDTs/Doc.js';
 import { toast } from 'sonner';
 import { VITE_BACKEND_URL } from '../../config';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
-const Editor = ({ documentID }) => {
-  const editor = useRef();
-  const [doc, setDoc] = useState();
+function Editor({ documentID }) {
+  const [value, setValue] = useState('');
+  const [document, setDocument] = useState();
+  const quillRef = useRef(null);
 
   const getDocument = () => {
     axios.defaults.withCredentials = true;
@@ -17,7 +18,7 @@ const Editor = ({ documentID }) => {
     .then((res) => {
       if (res.status === 200) {
         console.log(res)
-        setDoc(res.data.content);
+        setDocument(new Doc(res.data.content));
       }
     })
     .catch((error) => {
@@ -31,19 +32,25 @@ const Editor = ({ documentID }) => {
   }, []);
 
   useEffect(() => {
-    const startState = EditorState.create({
-        doc: doc,
-        extensions: [keymap.of(defaultKeymap)],
-    });
-    const view = new EditorView({
-        state: startState,
-        parent: editor.current
-    });
-    return () => {
-        view.destroy();
-    };
-}, [doc]);
-  return <div ref={editor}></div>;
+    if (quillRef.current && document){
+      quillRef.current.getEditor().setContents(document.getContent());
+    }
+  }, [document]);
+
+  useEffect(() => {
+    if (quillRef.current) {
+      const quill = quillRef.current.getEditor();
+      quill.on('text-change', (delta, oldContents, source) => {
+        console.log("Content changed:", delta, oldContents, source);
+      });
+    }
+  }, [quillRef]);
+
+  const modules = {
+    toolbar: ['bold', 'italic'],
+  }
+
+  return <ReactQuill ref={quillRef} theme="snow" value={value} onChange={setValue} modules={modules} />;
 }
- 
+
 export default Editor;
