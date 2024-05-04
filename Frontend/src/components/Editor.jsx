@@ -7,7 +7,7 @@ import { VITE_BACKEND_URL } from '../../config';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
-function Editor({ documentID, siteID }) {
+function Editor({ documentID, siteID, socketRef }) {
   const [value, setValue] = useState('');
   const [siteCounter, setSiteCounter] = useState(0);
   const [document, setDocument] = useState();
@@ -29,31 +29,49 @@ function Editor({ documentID, siteID }) {
   }
 
   useEffect(() => {
+    if (quillRef.current && socketRef.current && document) {
+      socketRef.current.on('receive-changes', (crdt) => {
+        console.log("receive", crdt);
+        const newCRDT = JSON.parse(crdt);
+        if (!newCRDT.tombstone) {
+          document.handleRemoteInsert(newCRDT);
+        } else {
+          document.handleRemoteDelete(newCRDT);
+        }
+          document.pretty();
+        quillRef.current.getEditor().setContents(document.getContent(), 'silent');
+      });
+    }
+  }, [document]);
+
+  useEffect(() => {
     getDocument();
   }, []);
 
   useEffect(() => {
     if (quillRef.current && document){
-      console.log(document.getContent())
-      quillRef.current.getEditor().setContents(document.getContent());
-      quillRef.current.getEditor().on('text-change', (delta, oldContents, source) => {
+      console.log("adfassd")
+      quillRef.current.getEditor().setContents(document.getContent(), 'silent');
+      quillRef.current.getEditor().on('text-change', (delta) => {
         console.log(delta)
         if (!delta.length) return;
         const op = Object.keys(delta.ops.find((op) => op.insert !== undefined || op.delete !== undefined))[0];
         console.log(op);
         console.log(document)
+        let crdt;
         switch (op) {
           case 'insert':
-            document.handleLocalInsert(delta.ops, siteID, siteCounter);
+            crdt = document.handleLocalInsert(delta.ops, siteID, siteCounter);
             break;
           case 'delete':
-            document.handleLocalDelete(delta.ops, siteID, siteCounter);
+            crdt = document.handleLocalDelete(delta.ops);
             break;
           default:
             break;
         }
         setSiteCounter((prev) => prev + 1);
         document.pretty();
+        socketRef.current.emit('send-changes', documentID, JSON.stringify(crdt));
       })
     }
   }, [document]);

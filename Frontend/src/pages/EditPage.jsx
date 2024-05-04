@@ -3,7 +3,6 @@ import { useRef, useState } from 'react';
 import Editor from '../components/Editor';
 import { useEffect } from 'react';
 import { io } from 'socket.io-client';
-import { toast } from 'sonner';
 
 // io('http://localhost:3000');
 
@@ -35,7 +34,7 @@ const EditPage = () => {
 
     return (
         <div className="mt-16 text-left w-screen">
-            <Editor documentID={documentID} siteID={siteID} />
+            <Editor documentID={documentID} siteID={siteID} socketRef = {socketRef}/>
         </div>
     );
 };

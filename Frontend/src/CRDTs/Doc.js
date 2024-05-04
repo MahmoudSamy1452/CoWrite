@@ -18,11 +18,16 @@ class Doc {
     this.doc = storedDoc;
   }
 
-  getFractionalIndex(index) {
+  convertEditorIndexToFractionalIndex(index) {
     let editorIndex = 0, docIndex = 1;
     for(; docIndex < this.doc.length && editorIndex < index; docIndex++) {
       editorIndex += this.doc[docIndex].tombstone ? 0 : 1;
     }
+    return docIndex;
+  }
+
+  getFractionalIndex(index) {
+    const docIndex = this.convertEditorIndexToFractionalIndex(index);
     console.log(docIndex)
     const prevFractionalIndex = this.doc[docIndex-1].index;
     const nextFractionalIndex = this.doc[docIndex].index;
@@ -33,7 +38,6 @@ class Doc {
   getContent() {
     let content = [];
     for(let i = 1; i < this.doc.length - 1; i++) {
-      console.log(this.doc[i].tombstone)
       if(this.doc[i].tombstone) continue;
       content.push({"insert": this.doc[i].char, "attributes": {"bold": this.doc[i].bold, "italic": this.doc[i].italic}});
     }
@@ -49,6 +53,24 @@ class Doc {
     const newCRDT = new CRDT(siteID, siteCounter, FractionalIndex, attributes.bold, attributes.italic, char)
     this.doc.push(newCRDT);
     this.doc.sort((a, b) => a.index - b.index);
+    return newCRDT;
+  }
+
+  handleLocalDelete(change) {
+    const EditorIndex = change.find((op) => op.retain !== undefined)?.retain || 0;
+    const docIndex = this.convertEditorIndexToFractionalIndex(EditorIndex);
+    this.doc[docIndex].tombstone = true;
+    return this.doc[docIndex];
+  }
+
+  handleRemoteInsert(newCRDT) {
+    this.doc.push(newCRDT);
+    this.doc.sort((a, b) => a.index - b.index);
+  }
+
+  handleRemoteDelete(newCRDT) {
+    const docIndex = this.doc.findIndex((char) => char.siteID === newCRDT.siteID && char.siteCounter === newCRDT.siteCounter);
+    this.doc[docIndex].tombstone = true;
   }
 
   pretty() {
