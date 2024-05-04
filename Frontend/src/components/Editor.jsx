@@ -3,7 +3,7 @@ import axios from 'axios';
 import Doc from '../CRDTs/Doc.js';
 import CRDT from '../CRDTs/CRDT.js';
 import { toast } from 'sonner';
-import { VITE_BACKEND_URL } from '../../config';
+import { VITE_BACKEND_URL, VITE_NODE_URL } from '../../config';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
@@ -36,11 +36,14 @@ function Editor({ documentID, siteID, socketRef }) {
         if (!newCRDT.tombstone) {
           document.handleRemoteInsert(newCRDT);
         } else {
+          console.log(newCRDT)
           document.handleRemoteDelete(newCRDT);
         }
-          document.pretty();
+        // document.pretty();
         quillRef.current.getEditor().setContents(document.getContent(), 'silent');
       });
+      quillRef.current.getEditor().setContents(document.getContent(), 'silent');
+      setSiteCounter(document.extractLastSiteCounter(siteID));
     }
   }, [document]);
 
@@ -50,15 +53,11 @@ function Editor({ documentID, siteID, socketRef }) {
 
   useEffect(() => {
     if (quillRef.current && document){
-      console.log("adfassd")
       // quillRef.current.getEditor().updateContents(document.getContent(), 'silent');
       quillRef.current.getEditor().off('text-change');
       quillRef.current.getEditor().on('text-change', (delta) => {
-        console.log(delta)
         if (!delta.length) return;
         const op = Object.keys(delta.ops.find((op) => op.insert !== undefined || op.delete !== undefined))[0];
-        console.log(op);
-        console.log(document)
         let crdt;
         switch (op) {
           case 'insert':
@@ -81,7 +80,31 @@ function Editor({ documentID, siteID, socketRef }) {
     toolbar: ['bold', 'italic'],
   }
 
-  return <ReactQuill ref={quillRef} theme="snow" value={value} onChange={setValue} modules={modules} />;
+  const handleSave = () => {
+    axios.defaults.withCredentials = true;
+
+    axios.put(`${VITE_NODE_URL}/save`, {
+      docId: documentID
+    })
+    .then((res) => {
+      if (res.status === 200) {
+        toast.success("Document saved");
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      toast.error("Error saving document");
+    });
+  }
+
+  return(
+    <>  
+      <div className='flex items-end flex-col'>
+        <button className='text-blue-500 bg-slate-100 m-3' onClick={handleSave}>Save</button>
+      </div>
+      <ReactQuill ref={quillRef} theme="snow" value={value} onChange={setValue} modules={modules} />
+    </>
+  )
 }
 
 export default Editor;

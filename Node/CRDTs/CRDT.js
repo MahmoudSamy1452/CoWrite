@@ -30,9 +30,9 @@ class CRDT{
   }
 
   static CRDTToChange(CRDT){
-    // if(CRDT.tombstone){
-    //   return [{"retain":CRDT.index},{"delete":CRDT.char,"attributes":{"bold":CRDT.bold,"italic":CRDT.italic}}]
-    // }
+    if(CRDT.tombstone){
+      return [{"retain":CRDT.index},{"delete":CRDT.char,"attributes":{"bold":CRDT.bold,"italic":CRDT.italic}}]
+    }
     return [{"retain":CRDT.index},{"insert":CRDT.char,"attributes":{"bold":CRDT.bold,"italic":CRDT.italic}}]
   }
 
@@ -40,4 +40,4 @@ class CRDT{
 
 }
 
-export default CRDT;
+module.exports = { CRDT }

@@ -1,4 +1,4 @@
-import CRDT from './CRDT.js';
+const { CRDT } = require('./CRDT.js');
 
 class Doc {
 
@@ -68,9 +68,7 @@ class Doc {
   }
 
   handleRemoteDelete(newCRDT) {
-    console.log(newCRDT)
     const docIndex = this.doc.findIndex((char) => char.siteID === newCRDT.siteID && char.siteCounter === newCRDT.siteCounter);
-    console.log(this.doc[docIndex])
     this.doc[docIndex].tombstone = true;
   }
 
@@ -79,16 +77,6 @@ class Doc {
         console.log(char.index, char.char, char.siteID, char.tombstone, char.siteCounter);
     }
   }
-
-  extractLastSiteCounter(siteID) {
-    let lastSiteCounter = 0;
-    for (let char of this.doc) {
-      if (char.siteID === siteID) {
-        lastSiteCounter = Math.max(lastSiteCounter, char.siteCounter);
-      }
-    }
-    return lastSiteCounter;
-  }
 }
 
-export default Doc;
+module.exports = {Doc}
