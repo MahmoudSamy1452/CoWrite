@@ -13,11 +13,11 @@ class CRDT{
   // [{"retain":5},{"insert":"a"}]
   static changeToCRDT(siteID, siteCounter, doc, change) {
     // change = JSON.parse(change)
-    const EditorIndex = change[0].retain;
-    const attributes = change[1].attributes;
-    delete change[1].attributes;
+    const EditorIndex = change.find((op) => op.retain !== undefined).retain;
+    const attributes = change.find((op) => op.attributes !== undefined).attributes;
+    const char = change.find((op) => op.insert !== undefined).insert || change.find((op) => op.delete !== undefined).delete;
+    delete change.find((op) => op.attributes !== undefined).attributes;
     const op = Object.keys(change[1])
-    const char = change[1][op]
     const FractionalIndex = doc.getFractionalIndex(EditorIndex)
     switch(op) {
       case 'insert':
