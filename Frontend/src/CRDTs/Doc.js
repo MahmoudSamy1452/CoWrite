@@ -75,7 +75,7 @@ class Doc {
 
   pretty() {
     for (let char of this.doc) {
-        console.log(char.index, char.char, char.siteID, char.tombstone);
+        console.log(char.index, char.char, char.siteID, char.tombstone, char.siteCounter);
     }
   }
 }

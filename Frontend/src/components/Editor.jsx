@@ -51,7 +51,8 @@ function Editor({ documentID, siteID, socketRef }) {
   useEffect(() => {
     if (quillRef.current && document){
       console.log("adfassd")
-      quillRef.current.getEditor().setContents(document.getContent(), 'silent');
+      // quillRef.current.getEditor().updateContents(document.getContent(), 'silent');
+      quillRef.current.getEditor().off('text-change');
       quillRef.current.getEditor().on('text-change', (delta) => {
         console.log(delta)
         if (!delta.length) return;
@@ -62,6 +63,7 @@ function Editor({ documentID, siteID, socketRef }) {
         switch (op) {
           case 'insert':
             crdt = document.handleLocalInsert(delta.ops, siteID, siteCounter);
+            setSiteCounter((prev) => prev + 1);
             break;
           case 'delete':
             crdt = document.handleLocalDelete(delta.ops);
@@ -69,12 +71,11 @@ function Editor({ documentID, siteID, socketRef }) {
           default:
             break;
         }
-        setSiteCounter((prev) => prev + 1);
         document.pretty();
         socketRef.current.emit('send-changes', documentID, JSON.stringify(crdt));
       })
     }
-  }, [document]);
+  }, [document, siteCounter]);
 
   const modules = {
     toolbar: ['bold', 'italic'],
