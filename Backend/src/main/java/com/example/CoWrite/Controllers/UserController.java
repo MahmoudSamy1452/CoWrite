@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @CrossOrigin("http://localhost:5173")
-@RequestMapping (path = "/api/v1/user")
+@RequestMapping (path = "/api/v1/auth/user")
 public class UserController {
 
     private final UserService userService;
