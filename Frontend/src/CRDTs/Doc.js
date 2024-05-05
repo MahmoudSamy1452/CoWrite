@@ -19,11 +19,16 @@ class Doc {
   }
 
   convertEditorIndexToFractionalIndex(index) {
+    console.log("index", index)
     let editorIndex = 0, docIndex = 1;
-    for(; docIndex < this.doc.length && editorIndex < index; docIndex++) {
+    // for(; docIndex < this.doc.length && editorIndex <= index; docIndex++) {
+    //   editorIndex += this.doc[docIndex].tombstone ? 0 : 1;
+    // }
+    while (docIndex < this.doc.length && editorIndex <= index) {
       editorIndex += this.doc[docIndex].tombstone ? 0 : 1;
+      docIndex++;
     }
-    return docIndex;
+    return docIndex - 1;
   }
 
   getFractionalIndex(index) {
@@ -56,9 +61,19 @@ class Doc {
   }
 
   handleLocalDelete(change) {
-    const EditorIndex = change.find((op) => op.retain !== undefined)?.retain || 0;
+    const EditorIndex = change.find((op) => op.retain !== undefined && op.delete === undefined)?.retain || 0;
     const docIndex = this.convertEditorIndexToFractionalIndex(EditorIndex);
     this.doc[docIndex].tombstone = true;
+    return this.doc[docIndex];
+  }
+
+  handleLocalAttribute(change) {
+    const EditorIndex = change.find((op) => op.retain !== undefined && op.attributes === undefined)?.retain || 0;
+    const docIndex = this.convertEditorIndexToFractionalIndex(EditorIndex);
+    const attribute = change.find((op) => op.attributes !== undefined)
+    this.doc[docIndex].bold = attribute.attributes.bold === undefined ? this.doc[docIndex].bold : attribute.attributes.bold ? true : false;
+    this.doc[docIndex].italic = attribute.attributes.italic === undefined ? this.doc[docIndex].italic : attribute.attributes.italic ? true : false;
+    console.log("handle zeft", this.doc[docIndex])
     return this.doc[docIndex];
   }
 
@@ -72,6 +87,12 @@ class Doc {
     const docIndex = this.doc.findIndex((char) => char.siteID === newCRDT.siteID && char.siteCounter === newCRDT.siteCounter);
     console.log(this.doc[docIndex])
     this.doc[docIndex].tombstone = true;
+  }
+
+  handleRemoteAttribute(newCRDT) {
+    const docIndex = this.doc.findIndex((char) => char.siteID === newCRDT.siteID && char.siteCounter === newCRDT.siteCounter);
+    this.doc[docIndex].bold = newCRDT.bold;
+    this.doc[docIndex].italic = newCRDT.italic;
   }
 
   pretty() {

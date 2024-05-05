@@ -72,6 +72,12 @@ class Doc {
     this.doc[docIndex].tombstone = true;
   }
 
+  handleRemoteAttribute(newCRDT) {
+    const docIndex = this.doc.findIndex((char) => char.siteID === newCRDT.siteID && char.siteCounter === newCRDT.siteCounter);
+    this.doc[docIndex].bold = newCRDT.bold;
+    this.doc[docIndex].italic = newCRDT.italic;
+  }
+
   pretty() {
     for (let char of this.doc) {
         console.log(char.index, char.char, char.siteID, char.tombstone, char.siteCounter);

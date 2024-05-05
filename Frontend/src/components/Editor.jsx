@@ -33,11 +33,15 @@ function Editor({ documentID, siteID, socketRef }) {
       socketRef.current.on('receive-changes', (crdt) => {
         console.log("receive", crdt);
         const newCRDT = JSON.parse(crdt);
-        if (!newCRDT.tombstone) {
+        const char = document.doc.find((oldCRDT) => newCRDT.siteID == oldCRDT.siteID && newCRDT.siteCounter == oldCRDT.siteCounter);
+        console.log(char)
+        if (newCRDT.tombstone) {
+          document.handleRemoteDelete(newCRDT);
+        } else if (!char) {
+          console.log(newCRDT)
           document.handleRemoteInsert(newCRDT);
         } else {
-          console.log(newCRDT)
-          document.handleRemoteDelete(newCRDT);
+          document.handleRemoteAttribute(newCRDT);
         }
         // document.pretty();
         quillRef.current.getEditor().setContents(document.getContent(), 'silent');
@@ -57,7 +61,8 @@ function Editor({ documentID, siteID, socketRef }) {
       quillRef.current.getEditor().off('text-change');
       quillRef.current.getEditor().on('text-change', (delta) => {
         if (!delta.length) return;
-        const op = Object.keys(delta.ops.find((op) => op.insert !== undefined || op.delete !== undefined))[0];
+        const opObject = delta.ops.find((op) => op.insert !== undefined || op.delete !== undefined);
+        const op = opObject ? Object.keys(opObject)[0] : null;
         let crdt;
         switch (op) {
           case 'insert':
@@ -68,6 +73,7 @@ function Editor({ documentID, siteID, socketRef }) {
             crdt = document.handleLocalDelete(delta.ops);
             break;
           default:
+            crdt = document.handleLocalAttribute(delta.ops);
             break;
         }
         document.pretty();

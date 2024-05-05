@@ -56,10 +56,16 @@ io.on('connection', (socket) => {
   socket.on('send-changes', (docID, crdt) => {
     console.log(`Sending changes to document ${docID}`);
     const newCRDT = JSON.parse(crdt);
-    if(!newCRDT.tombstone) {
+    const char = docMap[docID].doc.find((oldCRDT) => newCRDT.siteID == oldCRDT.siteID && newCRDT.siteCounter == oldCRDT.siteCounter);
+    console.log(newCRDT)
+    console.log(char)
+    if (newCRDT.tombstone) {
+      docMap[docID].handleRemoteDelete(newCRDT);
+    } else if (!char) {
+      console.log(newCRDT)
       docMap[docID].handleRemoteInsert(newCRDT);
     } else {
-      docMap[docID].handleRemoteDelete(newCRDT);
+      docMap[docID].handleRemoteAttribute(newCRDT);
     }
     console.log(docMap[docID])
     socket.to(docID).emit('receive-changes', crdt);
