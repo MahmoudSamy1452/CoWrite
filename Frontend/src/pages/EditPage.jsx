@@ -3,8 +3,7 @@ import { useRef, useState } from 'react';
 import Editor from '../components/Editor';
 import { useEffect } from 'react';
 import { io } from 'socket.io-client';
-
-// io('http://localhost:3000');
+import { VITE_NODE_URL } from '../../config';
 
 const EditPage = () => {
     const [siteID, setSiteID] = useState(null);
@@ -14,7 +13,7 @@ const EditPage = () => {
 
     useEffect(() => {
         if(!socketRef.current){
-            socketRef.current = io('http://localhost:3000');
+            socketRef.current = io(VITE_NODE_URL);
             socketRef.current.on('connect', () => {
                 socketRef.current.emit('join-document', documentID);
             });
