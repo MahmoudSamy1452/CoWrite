@@ -14,7 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@CrossOrigin("http://localhost:5173")
+@CrossOrigin("https://cowrite-frontend.vercel.app")
 @RequestMapping("/api/v1/auth")
 public class AuthController {
 

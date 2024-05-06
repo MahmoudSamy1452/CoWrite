@@ -34,7 +34,7 @@ const seq = new Sequelize(
 
 const app = express();
 const corsOptions = {
-  origin: 'https://cowrite-frontend.vercel.app/',
+  origin: 'https://cowrite-frontend.vercel.app',
   optionsSuccessStatus: 200,
   credentials: true
 };
@@ -76,6 +76,10 @@ io.on('connection', (socket) => {
   });
 });
 const router = express.Router();
+// Add a test route to the root
+router.get('/', (req, res) => {
+  res.send('Welcome to the server!');
+});
 router.put('/save', saveDocument);
 app.use(router);
 
