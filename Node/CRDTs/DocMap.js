@@ -8,10 +8,26 @@ const loadDocument = async (docId) => {
         const document = await Document.findOne({ where: { id: docId } });
         docMap[docId] = new Doc(document.content);
     }
-    console.log(docMap);
+    console.log(docMap)
+    return docMap[docId];
+}
+
+const saveDocumentOnLeave = async (docId) => {
+    if (!docMap[docId]) {
+        return;
+    }
+    const document = await Document.findOne({ where: { id: docId } });
+
+    if (!document) {
+        return;
+    }
+
+    console.log(docMap)
+    await document.update({ content: JSON.stringify(docMap[docId].doc) });
 }
 
 module.exports = {
     docMap,
-    loadDocument
+    loadDocument,
+    saveDocumentOnLeave
 }
