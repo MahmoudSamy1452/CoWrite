@@ -1,4 +1,4 @@
-import Document from "../components/document";
+import Document from "../components/Document";
 import axios from "axios";
 import moment from "moment";
 import { useAuthContext } from "../hooks/useAuthContext";
