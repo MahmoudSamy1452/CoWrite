@@ -53,23 +53,25 @@ const Document = (props) => {
     <>
       {props.view === "table" && (
         <div className="flex w-full justify-between p-5 bg-slate-100 hover:bg-slate-200 hover:shadow-l hover:cursor-pointer transition duration-500 ease-in-out" onClick={() => {navigate(`/view/${props.id}`)}}>
-          <div className='flex gap-3'>
-            <h3 className='text-lg'>{props.title}</h3>
+          <div className='flex gap-3 w-44'>
+            <h3 className='text-lg overflow-hidden overflow-ellipsis whitespace-nowrap'>{props.title}</h3>
+          </div>
+          <div>
             <span className="self-center flex gap-2" onClick={(e) => e.stopPropagation()}>
                 <FontAwesomeIcon className="self-center" icon={faPenToSquare} onClick={() => openModal("Rename")} />
                 <FontAwesomeIcon className="self-center" icon={faTrashCan} onClick={deleteDocument} />
                 <FontAwesomeIcon className="self-center" icon={faShare} onClick={() => openModal("Share")}/>
               </span>
           </div>
-          <p>Last Edited: {props.lastEdited}</p>
+          <p className='w-64 text-left'>Last Edited: {props.lastEdited}</p>
         </div>
       )}
       {props.view === "grid" && (
-        <div className="flex flex-col rounded-lg overflow-hidden hover:bg-slate-100 hover:shadow-l hover:cursor-pointer transition duration-500 ease-in-out md:w-60"
+        <div className="flex flex-col rounded-lg overflow-hidden hover:bg-slate-100 hover:shadow-l hover:cursor-pointer transition duration-500 ease-in-out md:w-60 max-w-72 border"
         onClick={() => {navigate(`/view/${props.id}`)}}>
           <div className={`${props.color} h-48`}></div>
           <div className="p-3 flex flex-col gap-2">
-            <h3 className='text-lg'>{props.title}</h3>
+            <h3 className='text-lg overflow-hidden overflow-ellipsis whitespace-nowrap'>{props.title}</h3>
             <p>Last Edited: {props.lastEdited}</p>
             <div className='flex gap-3 justify-center'>
               <span className="self-center flex gap-2" onClick={(e) => e.stopPropagation()}>
