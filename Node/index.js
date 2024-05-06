@@ -7,7 +7,7 @@ const { v4: uuidv4 } = require('uuid');
 const cors = require('cors');
 const { initializeModels } = require('./models/doc.js');
 const { saveDocument } = require('./db.js');
-const { loadDocument } = require('./CRDTs/DocMap.js');
+const { loadDocument, saveDocumentOnLeave } = require('./CRDTs/DocMap.js');
 const { docMap } = require('./CRDTs/DocMap.js');
 
 dotenv.config();
@@ -47,11 +47,12 @@ const io = socketIo(server, { cors: { origin: '*' }, methods: ['GET', 'POST'] })
 io.on('connection', (socket) => {
   console.log('New client connected');
   socket.on('disconnect', () => console.log('Client disconnected'));
-  socket.on('join-document', (docID) => {
+  socket.on('join-document', async (docID) => {
     console.log(`Joining document ${docID}`);
     socket.join(docID);
-    loadDocument(docID);
-    socket.emit('document-joined', uuidv4());
+    const doc = await loadDocument(docID);
+    const loadedDocument = JSON.stringify(doc.doc);
+    socket.emit('document-joined', {siteID: uuidv4(), loadDocument: loadedDocument });
   });
   socket.on('send-changes', (docID, crdt) => {
     console.log(`Sending changes to document ${docID}`);
@@ -70,9 +71,16 @@ io.on('connection', (socket) => {
     console.log(docMap[docID])
     socket.to(docID).emit('receive-changes', crdt);
   });
-  socket.on('leave-document', (docID) => {
+  socket.on('leave-document', async (docID) => {
     console.log(`Leaving document ${docID}`);
     socket.leave(docID);
+    const room = io.sockets.adapter.rooms.get(docID);
+    const roomSize = room ? room.size : 0;
+    console.log(roomSize);
+    if (roomSize === 0) {
+      await saveDocumentOnLeave(docID);
+      delete docMap[docID];
+    }
   });
 });
 const router = express.Router();

@@ -7,7 +7,7 @@ import { VITE_BACKEND_URL, VITE_NODE_URL } from '../../config';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
-function Editor({ documentID, siteID, socketRef }) {
+function Editor({ documentID, siteID, loadedDocument, socketRef }) {
   const [value, setValue] = useState('');
   const [siteCounter, setSiteCounter] = useState(0);
   const [document, setDocument] = useState();
@@ -16,7 +16,7 @@ function Editor({ documentID, siteID, socketRef }) {
   const getDocument = () => {
     axios.defaults.withCredentials = true;
 
-    axios.get(`${VITE_BACKEND_URL}/document/${documentID}`)
+    axios.get(`${VITE_NODE_URL}/document/${documentID}`)
     .then((res) => {
       if (res.status === 200) {
         setDocument(new Doc(res.data.content));
@@ -46,14 +46,22 @@ function Editor({ documentID, siteID, socketRef }) {
         // document.pretty();
         quillRef.current.getEditor().setContents(document.getContent(), 'silent');
       });
-      quillRef.current.getEditor().setContents(document.getContent(), 'silent');
-      setSiteCounter(document.extractLastSiteCounter(siteID));
+      if (document) {
+        console.log(document.doc)
+        quillRef.current.getEditor().setContents(document.getContent(), 'silent');
+        setSiteCounter(document.extractLastSiteCounter(siteID));
+      }
     }
   }, [document]);
 
   useEffect(() => {
-    getDocument();
-  }, []);
+    if (loadedDocument) {
+      console.log(loadedDocument);
+      console.log(documentID);
+      console.log(siteID)
+      setDocument(new Doc(loadedDocument));
+    }
+  }, [loadedDocument]);
 
   useEffect(() => {
     if (quillRef.current && document){
