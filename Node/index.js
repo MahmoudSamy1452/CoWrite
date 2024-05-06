@@ -24,7 +24,7 @@ const seq = new Sequelize(
 
 (async () => {
   try {
-    await seq.authenticate().then(() => {initializeModels(seq)});
+    await seq.authenticate().then(() => { initializeModels(seq) });
     console.log('Connection to MySQL database has been established successfully.');
   } catch (error) {
     console.error('Unable to connect to the database:', error);
@@ -34,7 +34,7 @@ const seq = new Sequelize(
 
 const app = express();
 const corsOptions = {
-  origin: 'http://localhost:5173',
+  origin: 'https://cowrite-frontend.vercel.app/',
   optionsSuccessStatus: 200,
   credentials: true
 };
@@ -42,7 +42,7 @@ app.use(cors(corsOptions));
 app.use(express.json());
 
 const server = http.createServer(app);
-const io = socketIo(server, { cors: { origin: '*' }, methods: ['GET', 'POST']});
+const io = socketIo(server, { cors: { origin: '*' }, methods: ['GET', 'POST'] });
 
 io.on('connection', (socket) => {
   console.log('New client connected');
@@ -81,6 +81,6 @@ app.use(router);
 
 const PORT = process.env.PORT || 3000;
 
-server.listen(PORT, () => console.log('Listening on port' , PORT));
+server.listen(PORT, () => console.log('Listening on port', PORT));
 
 module.exports = { seq };
