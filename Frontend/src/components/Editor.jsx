@@ -117,8 +117,10 @@ function Editor({ documentID, siteID, loadedDocument, socketRef }) {
         let crdt;
         switch (op) {
           case 'insert':
-            crdt = document.handleLocalInsert(delta.ops, siteID, siteCounter);
-            setSiteCounter((prev) => prev + 1);
+            setSiteCounter((prev) => {
+              crdt = document.handleLocalInsert(delta.ops, siteID, prev);
+              return prev + 1
+            });
             break;
           case 'delete':
             crdt = document.handleLocalDelete(delta.ops);
