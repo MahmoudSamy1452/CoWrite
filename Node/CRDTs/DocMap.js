@@ -6,6 +6,9 @@ const docMap = {};
 const loadDocument = async (docId) => {
     if (!docMap[docId]) {
         const document = await Document.findOne({ where: { id: docId } });
+        if(!document) {
+            return;
+        }
         docMap[docId] = new Doc(document.content);
     }
     console.log(docMap)

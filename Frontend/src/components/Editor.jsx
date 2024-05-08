@@ -51,6 +51,7 @@ function Editor({ documentID, siteID, loadedDocument, socketRef }) {
           delta = document.handleRemoteAttribute(newCRDT);
         }
         // document.pretty();
+        console.log(delta);
         quillRef.current.getEditor().updateContents(delta, 'silent');
       });
 
@@ -128,6 +129,11 @@ function Editor({ documentID, siteID, loadedDocument, socketRef }) {
         }
         document.pretty();
         socketRef.current.emit('send-changes', documentID, JSON.stringify(crdt));
+
+        const retainObject = delta.ops.find((op) => op.retain !== undefined && op.attributes === undefined && op.insert === undefined && op.delete === undefined);
+        const editor = quillRef.current.getEditor();
+        const cursorModule = editor.getModule('cursors');
+        socketRef.current.emit('send-cursor', documentID, cursorModule._cursors[siteID], {index: retainObject?.retain + 1 || 0, length: 0});
       })
 
       quillRef.current.getEditor().off('selection-change');
