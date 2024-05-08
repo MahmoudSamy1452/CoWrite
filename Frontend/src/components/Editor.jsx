@@ -41,16 +41,17 @@ function Editor({ documentID, siteID, loadedDocument, socketRef }) {
         const newCRDT = JSON.parse(crdt);
         const char = document.doc.find((oldCRDT) => newCRDT.siteID == oldCRDT.siteID && newCRDT.siteCounter == oldCRDT.siteCounter);
         console.log(char)
+        let delta = null;
         if (newCRDT.tombstone) {
-          document.handleRemoteDelete(newCRDT);
+          delta = document.handleRemoteDelete(newCRDT);
         } else if (!char) {
           console.log(newCRDT)
-          document.handleRemoteInsert(newCRDT);
+          delta = document.handleRemoteInsert(newCRDT);
         } else {
-          document.handleRemoteAttribute(newCRDT);
+          delta = document.handleRemoteAttribute(newCRDT);
         }
         // document.pretty();
-        quillRef.current.getEditor().setContents(document.getContent(), 'silent');
+        quillRef.current.getEditor().updateContents(delta, 'silent');
       });
 
       socketRef.current.on('receive-cursor', (cursor, range) => {
@@ -77,7 +78,7 @@ function Editor({ documentID, siteID, loadedDocument, socketRef }) {
 
       if (document) {
         console.log(document.doc)
-        quillRef.current.getEditor().setContents(document.getContent(), 'silent');
+        quillRef.current.getEditor().updateContents(document.getContent(), 'silent');
         setSiteCounter(document.extractLastSiteCounter(siteID));
       }
     }
