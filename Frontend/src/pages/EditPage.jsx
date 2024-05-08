@@ -17,19 +17,22 @@ const EditPage = () => {
             socketRef.current.on('connect', () => {
                 socketRef.current.emit('join-document', documentID);
             });
+            let currentSiteID = null;
             socketRef.current.on('document-joined', ({siteID, loadDocument}) => {
                 setSiteID(siteID);
                 setDocument(loadDocument);
+                currentSiteID = siteID;
             });
+
+            return () => {
+                if(socketRef.current) 
+                {
+                    socketRef.current.emit('leave-document', documentID, currentSiteID);
+                    socketRef.current.disconnect();
+                    socketRef.current = null;
+                }
+            };
         }
-        return () => {
-            if(socketRef.current) 
-            {
-                socketRef.current.emit('leave-document', documentID);
-                socketRef.current.disconnect();
-                socketRef.current = null;
-            }
-        };
     }, []);
 
 

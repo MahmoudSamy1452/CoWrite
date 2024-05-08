@@ -1,17 +1,23 @@
 import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import Doc from '../CRDTs/Doc.js';
-import CRDT from '../CRDTs/CRDT.js';
+import QuillCursors from 'quill-cursors';
 import { toast } from 'sonner';
-import { VITE_BACKEND_URL, VITE_NODE_URL } from '../../config';
-import ReactQuill from 'react-quill';
+import { VITE_NODE_URL } from '../../config';
+import ReactQuill, { Quill } from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import { useAuthContext } from '../hooks/useAuthContext';
+import { faker } from '@faker-js/faker';
+
+Quill.register('modules/cursors', QuillCursors)
 
 function Editor({ documentID, siteID, loadedDocument, socketRef }) {
   const [value, setValue] = useState('');
   const [siteCounter, setSiteCounter] = useState(0);
   const [document, setDocument] = useState();
+  const [cursors, setCursors] = useState([{}]);
   const quillRef = useRef(null);
+  const { user } = useAuthContext();
 
   const getDocument = () => {
     axios.defaults.withCredentials = true;
@@ -46,6 +52,29 @@ function Editor({ documentID, siteID, loadedDocument, socketRef }) {
         // document.pretty();
         quillRef.current.getEditor().setContents(document.getContent(), 'silent');
       });
+
+      socketRef.current.on('receive-cursor', (cursor, range) => {
+        console.log("received cursor", cursor.id, range);
+        const editor = quillRef.current.getEditor();
+        const cursorModule = editor.getModule('cursors');
+
+        if (cursorModule._cursors[cursor.id]) {
+          cursorModule.moveCursor(cursor.id, range);
+        } else {
+          cursorModule.createCursor(cursor.id, cursor.name, cursor.color);
+          cursorModule.moveCursor(cursor.id, range);
+        }
+        console.log(cursorModule._cursors);
+      })
+
+      socketRef.current.on('user-left', (ID) => {
+        console.log("removing cursor", ID);
+        const editor = quillRef.current.getEditor();
+        const cursorModule = editor.getModule('cursors');
+
+        cursorModule.removeCursor(ID);
+      })
+
       if (document) {
         console.log(document.doc)
         quillRef.current.getEditor().setContents(document.getContent(), 'silent');
@@ -53,6 +82,18 @@ function Editor({ documentID, siteID, loadedDocument, socketRef }) {
       }
     }
   }, [document]);
+
+  useEffect(() => {
+    if(quillRef.current && socketRef.current){
+      const editor = quillRef.current.getEditor();
+      const cursorModule = editor.getModule('cursors');
+      const cursor = cursorModule.createCursor(siteID, user, faker.helpers.arrayElement(['red', 'green', 'blue', 'purple', 'orange', 'cyon', 'magenta']));
+      console.log("cursor", cursor);
+      // setCursors((prev) => [...prev, { id: cursor.id }]);
+      const range = {"index":0,"length":0}
+      socketRef.current.emit('send-cursor', documentID, cursor, range);
+    }
+  }, [socketRef.current, quillRef.current]);
 
   useEffect(() => {
     if (loadedDocument) {
@@ -87,11 +128,25 @@ function Editor({ documentID, siteID, loadedDocument, socketRef }) {
         document.pretty();
         socketRef.current.emit('send-changes', documentID, JSON.stringify(crdt));
       })
+
+      quillRef.current.getEditor().off('selection-change');
+      quillRef.current.getEditor().on('selection-change', (range) => {
+        console.log(range);
+        if (range) {
+          const editor = quillRef.current.getEditor();
+          const cursorModule = editor.getModule('cursors');
+          cursorModule.moveCursor( siteID, range.index, range.length);
+          socketRef.current?.emit('send-cursor', documentID, cursorModule._cursors[siteID], range);
+        }
+      })
     }
   }, [document, siteCounter]);
 
   const modules = {
-    toolbar: ['bold', 'italic'],
+    cursors: {
+      transformOnTextChange: true,
+    },
+    toolbar: ['bold', 'italic']
   }
 
   const handleSave = () => {

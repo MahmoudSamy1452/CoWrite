@@ -31,7 +31,18 @@ class Doc {
     console.log(docIndex)
     const prevFractionalIndex = this.doc[docIndex-1].index;
     const nextFractionalIndex = this.doc[docIndex].index;
-    const fractionalIndex = prevFractionalIndex + (nextFractionalIndex - prevFractionalIndex) / 2;
+    // const fractionalIndex = prevFractionalIndex + (nextFractionalIndex - prevFractionalIndex) / 2;
+    let fractionalIndex;
+    const diff = nextFractionalIndex - prevFractionalIndex;
+    if (diff <= 10) {
+      fractionalIndex = prevFractionalIndex + diff/100;
+    } else if (diff <= 1000) {
+      fractionalIndex = Math.round(prevFractionalIndex + diff/10);
+    } else if (diff <= 5000) {
+      fractionalIndex = Math.round(prevFractionalIndex + diff/100);
+    } else {
+      fractionalIndex = Math.round(prevFractionalIndex + diff/1000);
+    }
     return fractionalIndex;
   }
 
