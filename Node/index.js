@@ -71,7 +71,7 @@ io.on('connection', (socket) => {
     console.log(docMap[docID])
     socket.to(docID).emit('receive-changes', crdt);
   });
-  socket.on('leave-document', async (docID) => {
+  socket.on('leave-document', async (docID, siteID) => {
     console.log(`Leaving document ${docID}`);
     socket.leave(docID);
     const room = io.sockets.adapter.rooms.get(docID);
@@ -81,6 +81,12 @@ io.on('connection', (socket) => {
       await saveDocumentOnLeave(docID);
       delete docMap[docID];
     }
+    socket.to(docID).emit('user-left', siteID);
+  });
+
+  socket.on('send-cursor', (docId, cursor, range) => {
+    console.log(`Sending cursor to document ${docId} from site ${cursor} at range ${range}`);
+    socket.to(docId).emit('receive-cursor', cursor, range);
   });
 });
 const router = express.Router();
