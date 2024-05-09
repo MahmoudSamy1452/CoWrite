@@ -119,18 +119,21 @@ function Editor({ documentID, siteID, loadedDocument, socketRef }) {
           case 'insert':
             setSiteCounter((prev) => {
               crdt = document.handleLocalInsert(delta.ops, siteID, prev);
+              console.log('gowa el set site counter',crdt)
+              socketRef.current.emit('send-changes', documentID, JSON.stringify(crdt));
               return prev + 1
             });
             break;
           case 'delete':
             crdt = document.handleLocalDelete(delta.ops);
+            socketRef.current.emit('send-changes', documentID, JSON.stringify(crdt));
             break;
           default:
             crdt = document.handleLocalAttribute(delta.ops);
+            socketRef.current.emit('send-changes', documentID, JSON.stringify(crdt));
             break;
         }
         document.pretty();
-        socketRef.current.emit('send-changes', documentID, JSON.stringify(crdt));
 
         const retainObject = delta.ops.find((op) => op.retain !== undefined && op.attributes === undefined && op.insert === undefined && op.delete === undefined);
         const editor = quillRef.current.getEditor();
