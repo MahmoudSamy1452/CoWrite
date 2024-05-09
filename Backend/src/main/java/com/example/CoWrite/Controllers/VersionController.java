@@ -1,7 +1,6 @@
 package com.example.CoWrite.Controllers;
 
 import com.example.CoWrite.DTOs.VersionDTO;
-import com.example.CoWrite.Models.Version;
 import com.example.CoWrite.Services.VersionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

@@ -28,7 +28,7 @@ public class VersionService {
         this.documentRepository = documentRepository;
         this.modelMapper = modelMapper;
 
-        PropertyMap<Version, VersionDTO> versionMap = new PropertyMap<Version, VersionDTO>() {
+        PropertyMap<Version, VersionDTO> versionMap = new PropertyMap<>() {
             protected void configure() {
                 map().setDocumentId(source.getDocument().getId());
             }
@@ -38,7 +38,7 @@ public class VersionService {
     }
 
     public List<VersionDTO> getVersions(Long documentId) {
-        Document document = documentRepository.findById(documentId).orElseThrow(
+        documentRepository.findById(documentId).orElseThrow(
                 () -> new ResourceNotFoundException("Document does not exist"));
 
         return versionRepository.findAllByDocumentId(documentId).stream()
