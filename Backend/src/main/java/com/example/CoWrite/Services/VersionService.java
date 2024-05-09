@@ -2,7 +2,6 @@ package com.example.CoWrite.Services;
 
 import com.example.CoWrite.DTOs.VersionDTO;
 import com.example.CoWrite.Exceptions.ResourceNotFoundException;
-import com.example.CoWrite.Models.Document;
 import com.example.CoWrite.Models.Version;
 import com.example.CoWrite.Repositories.DocumentRepository;
 import com.example.CoWrite.Repositories.VersionRepository;
