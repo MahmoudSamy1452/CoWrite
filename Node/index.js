@@ -5,7 +5,7 @@ const { Sequelize } = require('sequelize');
 const dotenv = require('dotenv');
 const { v4: uuidv4 } = require('uuid');
 const cors = require('cors');
-const { initializeModels } = require('./models/doc.js');
+const { initializeModels } = require('./models/initialization.js');
 const { saveDocument } = require('./db.js');
 const { loadDocument, saveDocumentOnLeave } = require('./CRDTs/DocMap.js');
 const { docMap } = require('./CRDTs/DocMap.js');
@@ -34,7 +34,7 @@ const seq = new Sequelize(
 
 const app = express();
 const corsOptions = {
-  origin: 'https://cowrite-frontend.vercel.app',
+  origin: process.env.CORS_ORIGIN,
   optionsSuccessStatus: 200,
   credentials: true
 };
