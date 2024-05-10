@@ -35,7 +35,10 @@ app.use(cors(corsOptions));
 app.use(express.json());
 
 const server = http.createServer(app);
-const io = socketIo(server, { cors: { origin: '*' }, methods: ['GET', 'POST'] });
+const io = socketIo(server, { 
+  cors: { origin: process.env.CORS_ORIGIN }, 
+  methods: ['GET', 'POST'] 
+});
 
 app.use((req, res, next) => {
   const token = req.get('Authorization').split(' ')[1];
