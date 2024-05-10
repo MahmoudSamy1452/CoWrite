@@ -2,7 +2,7 @@ const { Model, DataTypes } = require('sequelize');
 
 class Document extends Model {}
 
-const initializeModels = (seq) => {
+const initializeDocumentModel = (seq) => {
 
   Document.init({
     id: {
@@ -38,4 +38,4 @@ const initializeModels = (seq) => {
   });
 }
 
-module.exports = { initializeModels, Document };
+module.exports = { initializeDocumentModel, Document };

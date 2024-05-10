@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@CrossOrigin(origins = "https://cowrite-frontend.vercel.app")
 @RequestMapping(path = "/api/v1/contributor")
 public class ContributorController {
 

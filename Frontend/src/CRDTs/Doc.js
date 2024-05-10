@@ -31,12 +31,33 @@ class Doc {
     return docIndex - 1;
   }
 
+  convertDocIndexToEditorIndex(index) {
+    console.log("index", index)
+    let editorIndex = 0;
+    for(let docIndex = 1; docIndex < index && docIndex < this.doc.length; docIndex++) {
+      editorIndex += this.doc[docIndex].tombstone ? 0 : 1;
+    }
+    console.log("editorIndex", editorIndex)
+    return editorIndex;
+  }
+
   getFractionalIndex(index) {
     const docIndex = this.convertEditorIndexToFractionalIndex(index);
     console.log(docIndex)
     const prevFractionalIndex = this.doc[docIndex-1].index;
     const nextFractionalIndex = this.doc[docIndex].index;
-    const fractionalIndex = prevFractionalIndex + (nextFractionalIndex - prevFractionalIndex) / 2;
+    // const fractionalIndex = prevFractionalIndex + (nextFractionalIndex - prevFractionalIndex) / 2;
+    let fractionalIndex;
+    const diff = nextFractionalIndex - prevFractionalIndex;
+    if (diff <= 10) {
+      fractionalIndex = prevFractionalIndex + diff/100;
+    } else if (diff <= 1000) {
+      fractionalIndex = Math.round(prevFractionalIndex + diff/10);
+    } else if (diff <= 5000) {
+      fractionalIndex = Math.round(prevFractionalIndex + diff/100);
+    } else {
+      fractionalIndex = Math.round(prevFractionalIndex + diff/1000);
+    }
     return fractionalIndex;
   }
 
@@ -80,6 +101,17 @@ class Doc {
   handleRemoteInsert(newCRDT) {
     this.doc.push(newCRDT);
     this.doc.sort((a, b) => a.index - b.index);
+    const docIndex = this.doc.findIndex((char) => char.siteID === newCRDT.siteID && char.siteCounter === newCRDT.siteCounter);
+    const editorIndex = this.convertDocIndexToEditorIndex(docIndex);
+    let delta = editorIndex ? [{ retain: editorIndex }] : [];
+    delta.push({
+      insert: newCRDT.char,
+      attributes: {
+        bold: newCRDT.bold,
+        italic: newCRDT.italic,
+      }
+    })
+    return delta;
   }
 
   handleRemoteDelete(newCRDT) {
@@ -87,12 +119,29 @@ class Doc {
     const docIndex = this.doc.findIndex((char) => char.siteID === newCRDT.siteID && char.siteCounter === newCRDT.siteCounter);
     console.log(this.doc[docIndex])
     this.doc[docIndex].tombstone = true;
+    const editorIndex = this.convertDocIndexToEditorIndex(docIndex);
+    let delta = editorIndex ? [{ retain: editorIndex }] : [];
+    delta.push({
+      delete: 1,
+    })
+    return delta;
   }
 
   handleRemoteAttribute(newCRDT) {
     const docIndex = this.doc.findIndex((char) => char.siteID === newCRDT.siteID && char.siteCounter === newCRDT.siteCounter);
     this.doc[docIndex].bold = newCRDT.bold;
     this.doc[docIndex].italic = newCRDT.italic;
+    const editorIndex = this.convertDocIndexToEditorIndex(docIndex);
+    let delta = editorIndex ? [{retain: editorIndex}] : [];
+    delta.push(
+    {
+      retain: 1,
+      attributes: {
+        bold: newCRDT.bold,
+        italic: newCRDT.italic,
+      }
+    })
+    return delta;
   }
 
   pretty() {
