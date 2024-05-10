@@ -19,21 +19,6 @@ function Editor({ documentID, siteID, loadedDocument, socketRef }) {
   const quillRef = useRef(null);
   const { user } = useAuthContext();
 
-  const getDocument = () => {
-    axios.defaults.withCredentials = true;
-
-    axios.get(`${VITE_NODE_URL}/document/${documentID}`)
-    .then((res) => {
-      if (res.status === 200) {
-        setDocument(new Doc(res.data.content));
-      }
-    })
-    .catch((error) => {
-      console.log(error);
-      toast.error("Error getting document");
-    });
-  }
-
   useEffect(() => {
     if (quillRef.current && socketRef.current && document) {
       socketRef.current.on('receive-changes', (crdt) => {
