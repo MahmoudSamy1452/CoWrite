@@ -4,10 +4,10 @@ const socketIo = require('socket.io');
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const router = require('./router.js');
 const { Sequelize } = require('sequelize');
 const { Buffer } = require('buffer');
 const { initializeModels } = require('./models/initialization.js');
-const { saveDocument, rollbackDocument } = require('./db.js');
 const { setupEvents } = require('./socket.js');
 
 dotenv.config();
@@ -48,6 +48,7 @@ app.use((req, res, next) => {
       res.sendStatus(403);
     } else {
       req.user = user;
+      req.io = io;
       next();
     }
   });
@@ -76,16 +77,8 @@ io.on('connection', (socket) => {
   setupEvents(io, socket);
 });
 
-const router = express.Router();
-router.get('/', (req, res) => {
-  res.send('Welcome to the server!');
-});
-router.put('/save', saveDocument);
-router.put('/rollback', rollbackDocument);
-app.use(router);
+app.use(router)
 
 const PORT = process.env.PORT || 3000;
 
 server.listen(PORT, () => console.log('Listening on port', PORT));
-
-module.exports = { io };

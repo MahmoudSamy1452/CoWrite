@@ -159,7 +159,9 @@ function Editor({ documentID, siteID, loadedDocument, socketRef, readOnly }) {
     })
     .then((res) => {
       if (res.status === 200) {
-        toast.success("Document saved");
+        toast.success(res.data.message);
+      } else {
+        toast.error(res.data.message);
       }
     })
     .catch((error) => {

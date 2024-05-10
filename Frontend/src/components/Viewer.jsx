@@ -41,7 +41,7 @@ const Viewer = ({ versionID, documentID, role }) => {
         })
         .catch((err) => {
             console.log(err);
-            toast.error('Error rolling back document');
+            toast.error(err.response.data.message);
         });
     }
     

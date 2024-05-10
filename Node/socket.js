@@ -4,17 +4,21 @@ const { docMap } = require('./CRDTs/DocMap.js');
 
 const setupEvents = (io, socket) => {
   socket.on('disconnect', () => console.log('Client disconnected'));
+
   socket.on('join-document', async (docID) => {
     console.log(`Joining document ${docID}`);
     socket.join(docID);
-    const doc = await loadDocument(docID);
-    if (!doc) {
-      socket.emit('error', 'Document not found');
+    let doc = null;
+    try{
+      doc = await loadDocument(docID);
+    } catch(e) {
+      socket.emit('error', e.message);
       return;
     }
     const loadedDocument = JSON.stringify(doc.doc);
     socket.emit('document-joined', {siteID: uuidv4(), loadDocument: loadedDocument });
   });
+
   socket.on('send-changes', (docID, crdt) => {
     console.log(`Sending changes to document ${docID}`);
     const newCRDT = JSON.parse(crdt);
@@ -36,6 +40,7 @@ const setupEvents = (io, socket) => {
     console.log(docMap[docID])
     socket.to(docID).emit('receive-changes', crdt);
   });
+  
   socket.on('leave-document', async (docID, siteID) => {
     console.log(`Leaving document ${docID}`);
     socket.leave(docID);

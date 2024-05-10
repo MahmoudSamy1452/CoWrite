@@ -1,6 +1,5 @@
 const { Document } = require('./models/doc.js');
 const { Version } = require('./models/version.js');
-const { io } = require('./index.js');
 const { saveDocumentOnLeave } = require('./CRDTs/DocMap.js');
 
 const saveDocument = async (req, res) => {
@@ -11,15 +10,15 @@ const saveDocument = async (req, res) => {
     return res.status(404).json({ message: 'Document not found' });
   }
 
-  await saveDocumentOnLeave(docId);
-
-  res.status(200).json(document);
+  const result = await saveDocumentOnLeave(docId);
+  return res.status(result.status).json({ message: result.message });
 };
 
 const rollbackDocument = async (req, res) => {
   const { docId, versionId } = req.body;
+  const { io } = req;
 
-  const room = io?.sockets.adapter.rooms.get(docId);
+  const room = io?.sockets.adapter.rooms.get(docId.toString());
   const roomSize = room ? room.size : 0;
 
   if (roomSize !== 0) {
