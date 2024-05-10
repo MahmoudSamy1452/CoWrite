@@ -5,7 +5,6 @@ class Doc {
   constructor(storedDoc) {
     try {
       storedDoc = JSON.parse(storedDoc)
-      // storedDoc = JSON.parse(storedDoc) //to be removed
     }
     catch(e) {
       console.log(e)
@@ -31,7 +30,6 @@ class Doc {
     console.log(docIndex)
     const prevFractionalIndex = this.doc[docIndex-1].index;
     const nextFractionalIndex = this.doc[docIndex].index;
-    // const fractionalIndex = prevFractionalIndex + (nextFractionalIndex - prevFractionalIndex) / 2;
     let fractionalIndex;
     const diff = nextFractionalIndex - prevFractionalIndex;
     if (diff <= 10) {
@@ -89,11 +87,11 @@ class Doc {
     this.doc[docIndex].italic = newCRDT.italic;
   }
 
-  pretty() {
+  debug() {
     for (let char of this.doc) {
         console.log(char.index, char.char, char.siteID, char.tombstone, char.siteCounter);
     }
   }
 }
 
-module.exports = {Doc}
+module.exports = { Doc }

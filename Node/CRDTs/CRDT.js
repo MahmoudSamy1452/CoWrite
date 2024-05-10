@@ -10,9 +10,8 @@ class CRDT{
     this.char = char
   }
 
-  // [{"retain":5},{"insert":"a"}]
+  // not used
   static changeToCRDT(siteID, siteCounter, doc, change) {
-    // change = JSON.parse(change)
     const EditorIndex = change.find((op) => op.retain !== undefined).retain;
     const attributes = change.find((op) => op.attributes !== undefined).attributes;
     const char = change.find((op) => op.insert !== undefined).insert || change.find((op) => op.delete !== undefined).delete;
@@ -29,15 +28,13 @@ class CRDT{
     }
   }
 
+  // not used
   static CRDTToChange(CRDT){
     if(CRDT.tombstone){
       return [{"retain":CRDT.index},{"delete":CRDT.char,"attributes":{"bold":CRDT.bold,"italic":CRDT.italic}}]
     }
     return [{"retain":CRDT.index},{"insert":CRDT.char,"attributes":{"bold":CRDT.bold,"italic":CRDT.italic}}]
   }
-
-
-
 }
 
 module.exports = { CRDT }

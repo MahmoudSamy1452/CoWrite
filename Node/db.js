@@ -11,17 +11,6 @@ const saveDocument = async (req, res) => {
     return res.status(404).json({ message: 'Document not found' });
   }
 
-  // await document.update({ content: JSON.stringify(docMap[docId].doc) });
-
-  // const versions = await Version.findAll({ where: { document_id: docId } });
-  // const versionNumber = versions.length + 1;
-
-  // await Version.create({
-  //   document_id: docId,
-  //   content: JSON.stringify(docMap[docId].doc),
-  //   version_number: versionNumber
-  // });
-
   await saveDocumentOnLeave(docId);
 
   res.status(200).json(document);
@@ -30,7 +19,6 @@ const saveDocument = async (req, res) => {
 const rollbackDocument = async (req, res) => {
   const { docId, versionId } = req.body;
 
-  console.log(io)
   const room = io?.sockets.adapter.rooms.get(docId);
   const roomSize = room ? room.size : 0;
 
