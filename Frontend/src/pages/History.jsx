@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import moment from "moment";
@@ -10,6 +10,9 @@ const History = () => {
     const { token } = useAuthContext();
     const documentID = useParams().id;
     const [versionList, setVersionList] = useState([]);
+
+    const location = useLocation();
+    const role = location.state.role;
 
     const getDocumentHistory = (e) => {
         axios.defaults.withCredentials = true;
@@ -40,6 +43,8 @@ const History = () => {
                 id={document.id}
                 versionNumber={document.versionNumber}
                 lastEdited={moment(document.createdAt).format("LLL")}
+                documentId={document.documentId}
+                role = {role}
               />
               );
           })}

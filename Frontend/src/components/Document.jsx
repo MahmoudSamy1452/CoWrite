@@ -52,7 +52,7 @@ const Document = (props) => {
   return (
     <>
       {props.view === "table" && (
-        <div className="flex w-full justify-between p-5 bg-slate-100 hover:bg-slate-200 hover:shadow-l hover:cursor-pointer transition duration-500 ease-in-out" onClick={() => {navigate(`/view/${props.id}`)}}>
+        <div className="flex w-full justify-between p-5 bg-slate-100 hover:bg-slate-200 hover:shadow-l hover:cursor-pointer transition duration-500 ease-in-out" onClick={() => {navigate(`/view/${props.id}`, { state: { role: props.role } })}}>
           <div className='flex gap-3 w-44'>
             <h3 className='text-lg overflow-hidden overflow-ellipsis whitespace-nowrap'>{props.title}</h3>
           </div>
@@ -61,7 +61,7 @@ const Document = (props) => {
                 <FontAwesomeIcon className="self-center" icon={faPenToSquare} onClick={() => openModal("Rename")} />
                 <FontAwesomeIcon className="self-center" icon={faTrashCan} onClick={deleteDocument} />
                 <FontAwesomeIcon className="self-center" icon={faShare} onClick={() => openModal("Share")}/>
-                <FontAwesomeIcon className="self-center" icon={faCodeCompare} onClick={() => navigate(`/history/${props.id}`)}/>
+                <FontAwesomeIcon className="self-center" icon={faCodeCompare} onClick={() => navigate(`/history/${props.id}`, { state: { role: props.role } })}/>
               </span>
           </div>
           <p className='w-64 text-left'>Last Edited: {props.lastEdited}</p>
@@ -69,7 +69,7 @@ const Document = (props) => {
       )}
       {props.view === "grid" && (
         <div className="flex flex-col rounded-lg overflow-hidden hover:bg-slate-100 hover:shadow-l hover:cursor-pointer transition duration-500 ease-in-out md:w-60 max-w-64 border"
-        onClick={() => {navigate(`/view/${props.id}`)}}>
+        onClick={() => {navigate(`/view/${props.id}`, { state: { role: props.role } })}}>
           <div className={`${props.color} h-48`}></div>
           <div className="p-3 flex flex-col gap-2">
             <h3 className='text-lg overflow-hidden overflow-ellipsis whitespace-nowrap'>{props.title}</h3>
@@ -79,7 +79,7 @@ const Document = (props) => {
                 <FontAwesomeIcon className="self-center" icon={faPenToSquare} onClick={() => openModal("Rename")} />
                 <FontAwesomeIcon className="self-center" icon={faTrashCan} onClick={deleteDocument} />
                 <FontAwesomeIcon className="self-center" icon={faShare} onClick={() => openModal("Share")}/>
-                <FontAwesomeIcon className="self-center" icon={faCodeCompare} onClick={() => navigate(`/history/${props.id}`)}/>
+                <FontAwesomeIcon className="self-center" icon={faCodeCompare} onClick={() => navigate(`/history/${props.id}`, { state: { role: props.role } })}/>
               </span>
             </div>
           </div>

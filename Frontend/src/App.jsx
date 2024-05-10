@@ -3,6 +3,7 @@ import Login from "./pages/Login"
 import EditPage from "./pages/EditPage"
 import Documents from "./pages/Documents"
 import History from "./pages/History"
+import ViewVersion from "./pages/ViewVersion"
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { Toaster } from "sonner"
 import Navbar from "./components/Navbar"
@@ -21,6 +22,7 @@ function App() {
         <Route path="/home" element={<PrivateRoute><Documents /></PrivateRoute>} />
         <Route path="/view/:id" element={<PrivateRoute><EditPage /></PrivateRoute>} />
         <Route path="/history/:id" element={<PrivateRoute><History /></PrivateRoute>} />
+        <Route path="/version/:id" element={<PrivateRoute><ViewVersion /></PrivateRoute>} />
       </Routes>
     </BrowserRouter>
   )

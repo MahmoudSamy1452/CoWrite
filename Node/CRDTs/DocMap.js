@@ -26,11 +26,17 @@ const saveDocumentOnLeave = async (docId) => {
         return;
     }
 
-    console.log(docMap)
-    await document.update({ content: JSON.stringify(docMap[docId].doc) });
-
     const versions = await Version.findAll({ where: { document_id: docId } });
     const versionNumber = versions.length + 1;
+
+    const lastVersion = versions[versions.length - 1];
+
+    if (lastVersion && lastVersion.content === JSON.stringify(docMap[docId].doc)) {
+        return;
+    }
+
+    console.log(docMap)
+    await document.update({ content: JSON.stringify(docMap[docId].doc) });
 
     const version = await Version.create({
         document_id: docId,
