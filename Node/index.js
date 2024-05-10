@@ -5,8 +5,8 @@ const { Sequelize } = require('sequelize');
 const dotenv = require('dotenv');
 const { v4: uuidv4 } = require('uuid');
 const cors = require('cors');
-const { initializeModels } = require('./models/doc.js');
-const { saveDocument } = require('./db.js');
+const { initializeModels } = require('./models/initialization.js');
+const { saveDocument, rollbackDocument } = require('./db.js');
 const { loadDocument, saveDocumentOnLeave } = require('./CRDTs/DocMap.js');
 const { docMap } = require('./CRDTs/DocMap.js');
 const jwt = require('jsonwebtoken');
@@ -138,10 +138,11 @@ router.get('/', (req, res) => {
   res.send('Welcome to the server!');
 });
 router.put('/save', saveDocument);
+router.put('/rollback', rollbackDocument);
 app.use(router);
 
 const PORT = process.env.PORT || 3000;
 
 server.listen(PORT, () => console.log('Listening on port', PORT));
 
-module.exports = { seq };
+module.exports = { seq, io };

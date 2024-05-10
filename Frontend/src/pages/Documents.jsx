@@ -72,6 +72,7 @@ const Documents = () => {
                 setIsOpen={setIsOpen}
                 setAction={setAction}
                 color={colors[document.role]}
+                role={document.role}
               />
               );
           })}

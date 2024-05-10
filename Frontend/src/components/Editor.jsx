@@ -11,7 +11,7 @@ import { faker } from '@faker-js/faker';
 
 Quill.register('modules/cursors', QuillCursors)
 
-function Editor({ documentID, siteID, loadedDocument, socketRef }) {
+function Editor({ documentID, siteID, loadedDocument, socketRef, readOnly }) {
   const [value, setValue] = useState('');
   const [siteCounter, setSiteCounter] = useState(0);
   const [document, setDocument] = useState();
@@ -104,18 +104,21 @@ function Editor({ documentID, siteID, loadedDocument, socketRef }) {
           case 'insert':
             setSiteCounter((prev) => {
               crdt = document.handleLocalInsert(delta.ops, siteID, prev);
+              console.log('gowa el set site counter',crdt)
+              socketRef.current.emit('send-changes', documentID, JSON.stringify(crdt));
               return prev + 1
             });
             break;
           case 'delete':
             crdt = document.handleLocalDelete(delta.ops);
+            socketRef.current.emit('send-changes', documentID, JSON.stringify(crdt));
             break;
           default:
             crdt = document.handleLocalAttribute(delta.ops);
+            socketRef.current.emit('send-changes', documentID, JSON.stringify(crdt));
             break;
         }
         document.pretty();
-        socketRef.current.emit('send-changes', documentID, JSON.stringify(crdt));
 
         const retainObject = delta.ops.find((op) => op.retain !== undefined && op.attributes === undefined && op.insert === undefined && op.delete === undefined);
         const editor = quillRef.current.getEditor();
@@ -146,6 +149,11 @@ function Editor({ documentID, siteID, loadedDocument, socketRef }) {
   const handleSave = () => {
     axios.defaults.withCredentials = true;
 
+    if (readOnly) {
+      toast.error("You do not have permission to save this document");
+      return;
+    }
+
     axios.put(`${VITE_NODE_URL}/save`, {
       docId: documentID
     })
@@ -165,7 +173,7 @@ function Editor({ documentID, siteID, loadedDocument, socketRef }) {
       <div className='flex items-end flex-col'>
         <button className='text-blue-500 bg-slate-100 m-3' onClick={handleSave}>Save</button>
       </div>
-      <ReactQuill ref={quillRef} theme="snow" value={value} onChange={setValue} modules={modules} />
+      <ReactQuill ref={quillRef} theme="snow" value={value} onChange={setValue} modules={modules} readOnly={readOnly} />
     </>
   )
 }

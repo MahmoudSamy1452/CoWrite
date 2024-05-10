@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { useRef, useState } from 'react';
 import Editor from '../components/Editor';
 import { useEffect } from 'react';
@@ -13,6 +13,9 @@ const EditPage = () => {
     const socketRef = useRef(null);
     const documentID = useParams().id;
     const { token } = useAuthContext();
+
+    const location = useLocation();
+    const role = location.state.role;
 
     useEffect(() => {
         if(!socketRef.current){
@@ -55,7 +58,7 @@ const EditPage = () => {
 
     return (
         <div className="mt-16 text-left w-screen">
-            <Editor documentID={documentID} siteID={siteID} loadedDocument={document} socketRef = {socketRef}/>
+            <Editor documentID={documentID} siteID={siteID} loadedDocument={document} socketRef = {socketRef} readOnly = {role === 'v' ? true : false}/>
         </div>
     );
 };
