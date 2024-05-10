@@ -9,6 +9,7 @@ const { initializeModels } = require('./models/doc.js');
 const { saveDocument } = require('./db.js');
 const { loadDocument, saveDocumentOnLeave } = require('./CRDTs/DocMap.js');
 const { docMap } = require('./CRDTs/DocMap.js');
+const jwt = require('jsonwebtoken');
 
 dotenv.config();
 const seq = new Sequelize(
@@ -33,8 +34,10 @@ const seq = new Sequelize(
 })();
 
 const app = express();
+
+
 const corsOptions = {
-  origin: 'https://cowrite-frontend.vercel.app',
+  origin: process.env.CORS_ORIGIN,
   optionsSuccessStatus: 200,
   credentials: true
 };
@@ -44,6 +47,38 @@ app.use(express.json());
 const server = http.createServer(app);
 const io = socketIo(server, { cors: { origin: '*' }, methods: ['GET', 'POST'] });
 
+app.use((req, res, next) => {
+  const token = req.get('Authorization').split(' ')[1];
+  console.log(token);
+  console.log(process.env.JWT_SECRET);
+  jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS512'] }, (err, user) => {
+    if (err) {
+      res.sendStatus(403);
+    } else {
+      req.user = user;
+      next();
+    }
+  });
+});
+
+io.use((socket, next) => {
+  const token = socket.handshake.auth.token;
+  console.log(token);
+  if (token) {
+    jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS512'] }, (err, user) => {
+      if (err) {
+        next(new Error('Authentication error'));
+      } else {
+        socket.user = user;
+        next();
+      }
+    });
+  } else {
+    socket.emit('error', 'Authentication error');
+    next(new Error('Authentication error'));
+  }
+});
+
 io.on('connection', (socket) => {
   console.log('New client connected');
   socket.on('disconnect', () => console.log('Client disconnected'));
@@ -51,12 +86,20 @@ io.on('connection', (socket) => {
     console.log(`Joining document ${docID}`);
     socket.join(docID);
     const doc = await loadDocument(docID);
+    if (!doc) {
+      socket.emit('error', 'Document not found');
+      return;
+    }
     const loadedDocument = JSON.stringify(doc.doc);
     socket.emit('document-joined', {siteID: uuidv4(), loadDocument: loadedDocument });
   });
   socket.on('send-changes', (docID, crdt) => {
     console.log(`Sending changes to document ${docID}`);
     const newCRDT = JSON.parse(crdt);
+    if (!socket.rooms.has(docID)) {
+      socket.emit('error', 'Socket is not subscribed to room')
+      return;
+    }
     const char = docMap[docID].doc.find((oldCRDT) => newCRDT.siteID == oldCRDT.siteID && newCRDT.siteCounter == oldCRDT.siteCounter);
     console.log(newCRDT)
     console.log(char)
