@@ -1,0 +1,6 @@
+Backend/src/main/resources/cert/fullchain.pem
+Backend/src/main/resources/cert/fullchain1.pem
+Backend/src/main/resources/cert/privkey1.pem
+Backend/src/main/resources/cert/privkey.pem
+Backend/src/main/resources/cert/certificate.p12
+Backend/src/main/resources/cert/cert.jks
