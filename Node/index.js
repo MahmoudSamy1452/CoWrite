@@ -4,11 +4,12 @@ const socketIo = require('socket.io');
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 const cors = require('cors');
-const router = require('./router.js');
+const docRouter = require('./router.js');
 const { Sequelize } = require('sequelize');
 const { Buffer } = require('buffer');
 const { initializeModels } = require('./models/initialization.js');
 const { setupEvents } = require('./socket.js');
+const router = express.Router();
 
 dotenv.config();
 const seq = new Sequelize(
@@ -86,7 +87,7 @@ io.on('connection', (socket) => {
   setupEvents(io, socket);
 });
 
-app.use(router)
+app.use(docRouter)
 
 const PORT = process.env.PORT || 3000;
 
