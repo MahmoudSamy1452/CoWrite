@@ -40,6 +40,10 @@ const io = socketIo(server, {
   methods: ['GET', 'POST'] 
 });
 
+router.get('/', (req, res) => {
+  res.send('Welcome to the server!');
+});
+
 app.use((req, res, next) => {
   const authHeader = req.get('Authorization');
   if (!authHeader) {
