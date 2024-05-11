@@ -41,7 +41,12 @@ const io = socketIo(server, {
 });
 
 app.use((req, res, next) => {
-  const token = req.get('Authorization').split(' ')[1];
+  const authHeader = req.get('Authorization');
+  if (!authHeader) {
+    res.sendStatus(401);
+    return;
+  }
+  const token = authHeader.split(' ')[1];
   const secret = Buffer.from(process.env.JWT_SECRET, 'base64');
   jwt.verify(token, secret, { algorithms: ['HS512'] }, (err, user) => {
     if (err) {
