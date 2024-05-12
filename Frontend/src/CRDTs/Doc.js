@@ -72,16 +72,20 @@ class Doc {
 
   handleLocalInsert(change, siteID, siteCounter) {
     let EditorIndex = change.find((op) => op.retain !== undefined)?.retain || 0;
-    const attributes = change.find((op) => op.attributes !== undefined)?.attributes || {bold: false, italic: false};
-    const word = change.find((op) => op.insert !== undefined).insert || change.find((op) => op.delete !== undefined).delete;
-    console.log("word", word)
+    const inserts = change.filter((op) => op.insert !== undefined);
     let CRDTs = [];
-    for(let char of word) {
-      const FractionalIndex = this.getFractionalIndex(EditorIndex++)
-      const newCRDT = new CRDT(siteID, siteCounter++, false, FractionalIndex, attributes.bold, attributes.italic, char)
-      CRDTs.push(newCRDT);
-      this.doc.push(newCRDT);
-      this.doc.sort((a, b) => a.index - b.index);
+    change.find((op) => op.delete !== undefined) && CRDTs.push(...this.handleLocalDelete(change));
+    for(let insert of inserts) {
+      const attributes = insert?.attributes || {bold: false, italic: false};
+      const word = insert?.insert || insert?.delete;
+      console.log("word", word)
+      for(let char of word) {
+        const FractionalIndex = this.getFractionalIndex(EditorIndex++)
+        const newCRDT = new CRDT(siteID, siteCounter++, false, FractionalIndex, attributes.bold, attributes.italic, char)
+        CRDTs.push(newCRDT);
+        this.doc.push(newCRDT);
+        this.doc.sort((a, b) => a.index - b.index);
+      }
     }
     return CRDTs;
   }
