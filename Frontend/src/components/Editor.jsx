@@ -15,28 +15,47 @@ function Editor({ documentID, siteID, loadedDocument, socketRef, readOnly }) {
   const [value, setValue] = useState('');
   const [siteCounter, setSiteCounter] = useState(0);
   const [document, setDocument] = useState();
-  const [cursors, setCursors] = useState([{}]);
   const quillRef = useRef(null);
   const { user } = useAuthContext();
+  const operationQueueRef = useRef([]);
+  const versionVectorRef = useRef({});
 
   useEffect(() => {
     if (quillRef.current && socketRef.current && document) {
       socketRef.current.on('receive-changes', (crdt) => {
         console.log("received changes", crdt);
         const newCRDT = JSON.parse(crdt);
-        const char = document.doc.find((oldCRDT) => newCRDT.siteID == oldCRDT.siteID && newCRDT.siteCounter == oldCRDT.siteCounter);
-        let delta = null;
-        if (newCRDT.tombstone) {
-          delta = document.handleRemoteDelete(newCRDT);
-        } else if (!char) {
-          delta = document.handleRemoteInsert(newCRDT);
-        } else {
-          delta = document.handleRemoteAttribute(newCRDT);
+        let toBeProcessed = [...operationQueueRef.current, newCRDT];
+        let newOperationQueue = [];
+        let curVersionVector = {...versionVectorRef.current };
+        console.log('curVersionVector', curVersionVector);
+        toBeProcessed.sort((a, b) => a.siteCounter - b.siteCounter);
+        for(let operation of toBeProcessed) {
+          const expectedCounter = curVersionVector[operation.siteID] || 0;
+          console.log(operation.siteCounter, expectedCounter)
+          if (operation.siteCounter > expectedCounter) {
+            newOperationQueue.push(operation);
+            continue;
+          }
+          curVersionVector[operation.siteID] = Math.max(expectedCounter, operation.siteCounter+1);
+          const char = document.doc.find((oldCRDT) => operation.siteID == oldCRDT.siteID && operation.siteCounter == oldCRDT.siteCounter);
+          let delta = null;
+          if (operation.tombstone) {
+            delta = document.handleRemoteDelete(newCRDT);
+          } else if (!char) {
+            delta = document.handleRemoteInsert(newCRDT);
+          } else {
+            delta = document.handleRemoteAttribute(newCRDT);
+          }
+          document.pretty();
+          quillRef.current.getEditor().updateContents(delta, 'silent');
         }
-        document.pretty();
-        quillRef.current.getEditor().updateContents(delta, 'silent');
+        operationQueueRef.current = newOperationQueue;
+        versionVectorRef.current = curVersionVector;
+        console.log('newOperationQueue', newOperationQueue)
+        console.log('versionVector', curVersionVector);
       });
-
+    
       socketRef.current.on('receive-cursor', (cursor, range) => {
         console.log("received cursor", cursor.id, range);
         const editor = quillRef.current.getEditor();
@@ -81,7 +100,10 @@ function Editor({ documentID, siteID, loadedDocument, socketRef, readOnly }) {
 
   useEffect(() => {
     if (loadedDocument) {
-      setDocument(new Doc(loadedDocument));
+      const newDoc = new Doc(loadedDocument);
+      setDocument(newDoc);
+      versionVectorRef.current = newDoc.extractExpectedSiteCounters();
+      console.log('--------------------------------------------')
     }
   }, [loadedDocument]);
 
@@ -102,8 +124,8 @@ function Editor({ documentID, siteID, loadedDocument, socketRef, readOnly }) {
                 console.log("sending insert", crdt)
                 socketRef.current.emit('send-changes', documentID, JSON.stringify(crdt));
               });
-            document.pretty();
-            sendCursor(delta, crdts.length);
+              document.pretty();
+              sendCursor(delta, crdts.length);
               return crdts[crdts.length - 1].siteCounter + 1;
             });
             break;

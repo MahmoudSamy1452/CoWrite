@@ -178,6 +178,18 @@ class Doc {
     }
     return lastSiteCounter;
   }
+
+  extractExpectedSiteCounters() {
+    let lastSiteCounters = {};
+    for (let char of this.doc) {
+      if (char.siteID in lastSiteCounters) {
+        lastSiteCounters[char.siteID] = Math.max(lastSiteCounters[char.siteID], char.siteCounter+1);
+      } else {
+        lastSiteCounters[char.siteID] = char.siteCounter+1;
+      }
+    }
+    return lastSiteCounters;
+  }
 }
 
 export default Doc;
