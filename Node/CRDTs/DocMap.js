@@ -31,6 +31,10 @@ const saveDocumentOnLeave = async (docId) => {
 
         const lastVersion = versions[versions.length - 1];
 
+        const doc = docMap[docId].doc;
+        const filtered = [doc[0], ...doc.slice(1, -1).filter((crdt) => crdt.tombstone === false), doc[doc.length - 1]];
+        docMap[docId].doc = filtered;
+
         if (lastVersion && lastVersion.content === JSON.stringify(docMap[docId].doc)) {
             return { status: 200, message: 'No changes detected in document' };
         }
