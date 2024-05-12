@@ -22,6 +22,7 @@ function Editor({ documentID, siteID, loadedDocument, socketRef, readOnly }) {
   useEffect(() => {
     if (quillRef.current && socketRef.current && document) {
       socketRef.current.on('receive-changes', (crdt) => {
+        console.log("received changes", crdt);
         const newCRDT = JSON.parse(crdt);
         const char = document.doc.find((oldCRDT) => newCRDT.siteID == oldCRDT.siteID && newCRDT.siteCounter == oldCRDT.siteCounter);
         let delta = null;
@@ -32,6 +33,7 @@ function Editor({ documentID, siteID, loadedDocument, socketRef, readOnly }) {
         } else {
           delta = document.handleRemoteAttribute(newCRDT);
         }
+        document.pretty();
         quillRef.current.getEditor().updateContents(delta, 'silent');
       });
 
@@ -91,26 +93,29 @@ function Editor({ documentID, siteID, loadedDocument, socketRef, readOnly }) {
         if (!delta.length) return;
         const opObject = delta.ops.find((op) => op.insert !== undefined || op.delete !== undefined);
         const op = opObject ? Object.keys(opObject)[0] : null;
-        let crdt;
+        let crdts;
         switch (op) {
           case 'insert':
             setSiteCounter((prev) => {
-              crdt = document.handleLocalInsert(delta.ops, siteID, prev);
-              socketRef.current.emit('send-changes', documentID, JSON.stringify(crdt));
-              sendCursor(delta);
-              return prev + 1
+              crdts = document.handleLocalInsert(delta.ops, siteID, prev);
+              crdts.forEach((crdt) => {
+                console.log("sending insert", crdt)
+                socketRef.current.emit('send-changes', documentID, JSON.stringify(crdt));
+              });
+              sendCursor(delta, crdts.length);
+              return crdts[crdts.length - 1].siteCounter + 1;
             });
             break;
           case 'delete':
-            crdt = document.handleLocalDelete(delta.ops);
-            socketRef.current.emit('send-changes', documentID, JSON.stringify(crdt));
+            crdts = document.handleLocalDelete(delta.ops);
+            socketRef.current.emit('send-changes', documentID, JSON.stringify(crdts));
             break;
           default:
-            crdt = document.handleLocalAttribute(delta.ops);
-            socketRef.current.emit('send-changes', documentID, JSON.stringify(crdt));
+            crdts = document.handleLocalAttribute(delta.ops);
+            socketRef.current.emit('send-changes', documentID, JSON.stringify(crdts));
             break;
         }
-        sendCursor(delta);
+        sendCursor(delta, crdts?.length || 1);
         document.pretty(); 
       })
 
@@ -126,11 +131,12 @@ function Editor({ documentID, siteID, loadedDocument, socketRef, readOnly }) {
     }
   }, [document, siteCounter]);
 
-  const sendCursor = (delta) => {
+  const sendCursor = (delta, length) => {
     const retainObject = delta.ops.find((op) => op.retain !== undefined && op.attributes === undefined && op.insert === undefined && op.delete === undefined);
     const editor = quillRef.current.getEditor();
     const cursorModule = editor.getModule('cursors');
-    socketRef.current.emit('send-cursor', documentID, cursorModule._cursors[siteID], {index: retainObject?.retain + 1 || 1, length: 0});
+    
+    socketRef.current.emit('send-cursor', documentID, cursorModule._cursors[siteID], {index: retainObject?.retain + length || length, length: 0});
   }
 
   const modules = {

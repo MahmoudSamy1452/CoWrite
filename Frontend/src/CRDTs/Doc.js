@@ -71,14 +71,19 @@ class Doc {
   }
 
   handleLocalInsert(change, siteID, siteCounter) {
-    const EditorIndex = change.find((op) => op.retain !== undefined)?.retain || 0;
+    let EditorIndex = change.find((op) => op.retain !== undefined)?.retain || 0;
     const attributes = change.find((op) => op.attributes !== undefined)?.attributes || {bold: false, italic: false};
-    const char = change.find((op) => op.insert !== undefined).insert || change.find((op) => op.delete !== undefined).delete;
-    const FractionalIndex = this.getFractionalIndex(EditorIndex)
-    const newCRDT = new CRDT(siteID, siteCounter, false, FractionalIndex, attributes.bold, attributes.italic, char)
-    this.doc.push(newCRDT);
-    this.doc.sort((a, b) => a.index - b.index);
-    return newCRDT;
+    const word = change.find((op) => op.insert !== undefined).insert || change.find((op) => op.delete !== undefined).delete;
+    console.log("word", word)
+    let CRDTs = [];
+    for(let char of word) {
+      const FractionalIndex = this.getFractionalIndex(EditorIndex++)
+      const newCRDT = new CRDT(siteID, siteCounter++, false, FractionalIndex, attributes.bold, attributes.italic, char)
+      CRDTs.push(newCRDT);
+      this.doc.push(newCRDT);
+      this.doc.sort((a, b) => a.index - b.index);
+    }
+    return CRDTs;
   }
 
   handleLocalDelete(change) {
@@ -94,7 +99,6 @@ class Doc {
     const attribute = change.find((op) => op.attributes !== undefined)
     this.doc[docIndex].bold = attribute.attributes.bold === undefined ? this.doc[docIndex].bold : attribute.attributes.bold ? true : false;
     this.doc[docIndex].italic = attribute.attributes.italic === undefined ? this.doc[docIndex].italic : attribute.attributes.italic ? true : false;
-    console.log("handle zeft", this.doc[docIndex])
     return this.doc[docIndex];
   }
 
