@@ -33,7 +33,7 @@ function Editor({ documentID, siteID, loadedDocument, socketRef, readOnly }) {
         for(let operation of toBeProcessed) {
           const expectedCounter = curVersionVector[operation.siteID] || 0;
           console.log(operation.siteCounter, expectedCounter)
-          if (operation.siteCounter > expectedCounter) {
+          if (operation.siteCounter > expectedCounter && operation.siteID !== siteID) {
             newOperationQueue.push(operation);
             continue;
           }

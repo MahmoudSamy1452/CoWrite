@@ -20,24 +20,20 @@ const setupEvents = (io, socket) => {
   });
 
   socket.on('send-changes', (docID, crdt) => {
-    console.log(`Sending changes to document ${docID}`);
+    console.log(`Sending changes to document ${docID}`, crdt);
     const newCRDT = JSON.parse(crdt);
     if (!socket.rooms.has(docID)) {
       socket.emit('error', 'Socket is not subscribed to room')
       return;
     }
     const char = docMap[docID].doc.find((oldCRDT) => newCRDT.siteID == oldCRDT.siteID && newCRDT.siteCounter == oldCRDT.siteCounter);
-    console.log(newCRDT)
-    console.log(char)
     if (newCRDT.tombstone) {
       docMap[docID].handleRemoteDelete(newCRDT);
     } else if (!char) {
-      console.log(newCRDT)
       docMap[docID].handleRemoteInsert(newCRDT);
     } else {
       docMap[docID].handleRemoteAttribute(newCRDT);
     }
-    console.log(docMap[docID])
     socket.to(docID).emit('receive-changes', crdt);
   });
   
