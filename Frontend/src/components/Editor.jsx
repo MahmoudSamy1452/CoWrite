@@ -22,21 +22,16 @@ function Editor({ documentID, siteID, loadedDocument, socketRef, readOnly }) {
   useEffect(() => {
     if (quillRef.current && socketRef.current && document) {
       socketRef.current.on('receive-changes', (crdt) => {
-        console.log("receive", crdt);
         const newCRDT = JSON.parse(crdt);
         const char = document.doc.find((oldCRDT) => newCRDT.siteID == oldCRDT.siteID && newCRDT.siteCounter == oldCRDT.siteCounter);
-        console.log(char)
         let delta = null;
         if (newCRDT.tombstone) {
           delta = document.handleRemoteDelete(newCRDT);
         } else if (!char) {
-          console.log(newCRDT)
           delta = document.handleRemoteInsert(newCRDT);
         } else {
           delta = document.handleRemoteAttribute(newCRDT);
         }
-        // document.pretty();
-        console.log(delta);
         quillRef.current.getEditor().updateContents(delta, 'silent');
       });
 
@@ -46,12 +41,13 @@ function Editor({ documentID, siteID, loadedDocument, socketRef, readOnly }) {
         const cursorModule = editor.getModule('cursors');
 
         if (cursorModule._cursors[cursor.id]) {
+          console.log("moving cursor", cursor.id, range)
           cursorModule.moveCursor(cursor.id, range);
         } else {
           cursorModule.createCursor(cursor.id, cursor.name, cursor.color);
           cursorModule.moveCursor(cursor.id, range);
         }
-        console.log(cursorModule._cursors);
+        console.log('moved to: ', range);
       })
 
       socketRef.current.on('user-left', (ID) => {
@@ -74,9 +70,8 @@ function Editor({ documentID, siteID, loadedDocument, socketRef, readOnly }) {
     if(quillRef.current && socketRef.current){
       const editor = quillRef.current.getEditor();
       const cursorModule = editor.getModule('cursors');
-      const cursor = cursorModule.createCursor(siteID, user, faker.helpers.arrayElement(['red', 'green', 'blue', 'purple', 'orange', 'cyon', 'magenta']));
+      const cursor = cursorModule.createCursor(siteID, user, faker.helpers.arrayElement(['red', 'green', 'blue', 'purple', 'orange', 'magenta']));
       console.log("cursor", cursor);
-      // setCursors((prev) => [...prev, { id: cursor.id }]);
       const range = {"index":0,"length":0}
       socketRef.current.emit('send-cursor', documentID, cursor, range);
     }
@@ -84,18 +79,15 @@ function Editor({ documentID, siteID, loadedDocument, socketRef, readOnly }) {
 
   useEffect(() => {
     if (loadedDocument) {
-      console.log(loadedDocument);
-      console.log(documentID);
-      console.log(siteID)
       setDocument(new Doc(loadedDocument));
     }
   }, [loadedDocument]);
 
   useEffect(() => {
     if (quillRef.current && document){
-      // quillRef.current.getEditor().updateContents(document.getContent(), 'silent');
       quillRef.current.getEditor().off('text-change');
       quillRef.current.getEditor().on('text-change', (delta) => {
+        console.log(delta)
         if (!delta.length) return;
         const opObject = delta.ops.find((op) => op.insert !== undefined || op.delete !== undefined);
         const op = opObject ? Object.keys(opObject)[0] : null;
@@ -104,8 +96,8 @@ function Editor({ documentID, siteID, loadedDocument, socketRef, readOnly }) {
           case 'insert':
             setSiteCounter((prev) => {
               crdt = document.handleLocalInsert(delta.ops, siteID, prev);
-              console.log('gowa el set site counter',crdt)
               socketRef.current.emit('send-changes', documentID, JSON.stringify(crdt));
+              sendCursor(delta);
               return prev + 1
             });
             break;
@@ -118,17 +110,12 @@ function Editor({ documentID, siteID, loadedDocument, socketRef, readOnly }) {
             socketRef.current.emit('send-changes', documentID, JSON.stringify(crdt));
             break;
         }
-        document.pretty();
-
-        const retainObject = delta.ops.find((op) => op.retain !== undefined && op.attributes === undefined && op.insert === undefined && op.delete === undefined);
-        const editor = quillRef.current.getEditor();
-        const cursorModule = editor.getModule('cursors');
-        socketRef.current.emit('send-cursor', documentID, cursorModule._cursors[siteID], {index: retainObject?.retain + 1 || 0, length: 0});
+        sendCursor(delta);
+        document.pretty(); 
       })
 
       quillRef.current.getEditor().off('selection-change');
       quillRef.current.getEditor().on('selection-change', (range) => {
-        console.log(range);
         if (range) {
           const editor = quillRef.current.getEditor();
           const cursorModule = editor.getModule('cursors');
@@ -138,6 +125,13 @@ function Editor({ documentID, siteID, loadedDocument, socketRef, readOnly }) {
       })
     }
   }, [document, siteCounter]);
+
+  const sendCursor = (delta) => {
+    const retainObject = delta.ops.find((op) => op.retain !== undefined && op.attributes === undefined && op.insert === undefined && op.delete === undefined);
+    const editor = quillRef.current.getEditor();
+    const cursorModule = editor.getModule('cursors');
+    socketRef.current.emit('send-cursor', documentID, cursorModule._cursors[siteID], {index: retainObject?.retain + 1 || 1, length: 0});
+  }
 
   const modules = {
     cursors: {
@@ -165,8 +159,7 @@ function Editor({ documentID, siteID, loadedDocument, socketRef, readOnly }) {
       }
     })
     .catch((error) => {
-      console.log(error);
-      toast.error("Error saving document");
+      toast.error("Error saving document: "+error.message);
     });
   }
 
