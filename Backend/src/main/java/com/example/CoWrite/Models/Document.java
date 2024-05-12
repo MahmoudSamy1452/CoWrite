@@ -31,4 +31,7 @@ public class Document {
 
     @OneToMany(mappedBy = "document", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private List<Contributor> contributors;
+
+    @OneToMany(mappedBy = "document", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    private List<Version> versions;
 }
