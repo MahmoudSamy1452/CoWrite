@@ -102,21 +102,29 @@ function Editor({ documentID, siteID, loadedDocument, socketRef, readOnly }) {
                 console.log("sending insert", crdt)
                 socketRef.current.emit('send-changes', documentID, JSON.stringify(crdt));
               });
-              sendCursor(delta, crdts.length);
+            document.pretty();
+            sendCursor(delta, crdts.length);
               return crdts[crdts.length - 1].siteCounter + 1;
             });
             break;
           case 'delete':
             crdts = document.handleLocalDelete(delta.ops);
-            socketRef.current.emit('send-changes', documentID, JSON.stringify(crdts));
+            crdts.forEach((crdt) => {
+              socketRef.current.emit('send-changes', documentID, JSON.stringify(crdt));
+            });
+            document.pretty();
+            sendCursor(delta, 0);
             break;
           default:
             crdts = document.handleLocalAttribute(delta.ops);
-            socketRef.current.emit('send-changes', documentID, JSON.stringify(crdts));
+            crdts.forEach((crdt) => {
+              socketRef.current.emit('send-changes', documentID, JSON.stringify(crdt));
+            });
+            document.pretty();
+            sendCursor(delta, 0);
             break;
         }
-        sendCursor(delta, crdts?.length || 1);
-        document.pretty(); 
+        
       })
 
       quillRef.current.getEditor().off('selection-change');

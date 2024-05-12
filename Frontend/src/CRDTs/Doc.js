@@ -88,18 +88,29 @@ class Doc {
 
   handleLocalDelete(change) {
     const EditorIndex = change.find((op) => op.retain !== undefined && op.delete === undefined)?.retain || 0;
-    const docIndex = this.convertEditorIndexToFractionalIndex(EditorIndex);
-    this.doc[docIndex].tombstone = true;
-    return this.doc[docIndex];
+    let deleteCount = change.find((op) => op.delete !== undefined).delete;
+    let CRDTs = [];
+    while(deleteCount--) {
+      const docIndex = this.convertEditorIndexToFractionalIndex(EditorIndex);
+      this.doc[docIndex].tombstone = true;
+      CRDTs.push(this.doc[docIndex]);
+    }
+    return CRDTs;
   }
 
   handleLocalAttribute(change) {
-    const EditorIndex = change.find((op) => op.retain !== undefined && op.attributes === undefined)?.retain || 0;
-    const docIndex = this.convertEditorIndexToFractionalIndex(EditorIndex);
+    let EditorIndex = change.find((op) => op.retain !== undefined && op.attributes === undefined)?.retain || 0;
     const attribute = change.find((op) => op.attributes !== undefined)
-    this.doc[docIndex].bold = attribute.attributes.bold === undefined ? this.doc[docIndex].bold : attribute.attributes.bold ? true : false;
-    this.doc[docIndex].italic = attribute.attributes.italic === undefined ? this.doc[docIndex].italic : attribute.attributes.italic ? true : false;
-    return this.doc[docIndex];
+    let attributeCount = attribute.retain || 1;
+    let CRDTs = [];
+    while(attributeCount--){
+      const docIndex = this.convertEditorIndexToFractionalIndex(EditorIndex++);
+      this.doc[docIndex].bold = attribute.attributes.bold === undefined ? this.doc[docIndex].bold : attribute.attributes.bold ? true : false;
+      this.doc[docIndex].italic = attribute.attributes.italic === undefined ? this.doc[docIndex].italic : attribute.attributes.italic ? true : false;
+      CRDTs.push(this.doc[docIndex]);
+    }
+    console.log('attr ', CRDTs)
+    return CRDTs;
   }
 
   handleRemoteInsert(newCRDT) {
