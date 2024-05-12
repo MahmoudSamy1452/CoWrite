@@ -14,6 +14,7 @@ Quill.register('modules/cursors', QuillCursors)
 function Editor({ documentID, siteID, loadedDocument, socketRef, readOnly }) {
   const [value, setValue] = useState('');
   const [siteCounter, setSiteCounter] = useState(0);
+  const siteCounterRef = useRef(0);
   const [document, setDocument] = useState();
   const quillRef = useRef(null);
   const { user } = useAuthContext();
@@ -82,7 +83,7 @@ function Editor({ documentID, siteID, loadedDocument, socketRef, readOnly }) {
       if (document) {
         console.log(document.doc)
         quillRef.current.getEditor().updateContents(document.getContent(), 'silent');
-        setSiteCounter(document.extractLastSiteCounter(siteID));
+        siteCounterRef.current = document.extractLastSiteCounter(siteID);
       }
     }
   }, [document]);
@@ -118,16 +119,14 @@ function Editor({ documentID, siteID, loadedDocument, socketRef, readOnly }) {
         let crdts;
         switch (op) {
           case 'insert':
-            setSiteCounter((prev) => {
-              crdts = document.handleLocalInsert(delta.ops, siteID, prev);
-              crdts.forEach((crdt) => {
-                console.log("sending insert", crdt)
-                socketRef.current.emit('send-changes', documentID, JSON.stringify(crdt));
-              });
-              document.pretty();
-              sendCursor(delta, crdts.length);
-              return crdts[crdts.length - 1].siteCounter + 1;
+            crdts = document.handleLocalInsert(delta.ops, siteID, siteCounterRef.current);
+            console.log("sending insert", crdts)
+            crdts.forEach((crdt) => {
+              socketRef.current.emit('send-changes', documentID, JSON.stringify(crdt));
             });
+            siteCounterRef.current = crdts[crdts.length - 1].siteCounter + 1;
+            sendCursor(delta, crdts.length);
+            document.pretty();
             break;
           case 'delete':
             crdts = document.handleLocalDelete(delta.ops);
@@ -159,7 +158,7 @@ function Editor({ documentID, siteID, loadedDocument, socketRef, readOnly }) {
         }
       })
     }
-  }, [document, siteCounter]);
+  }, [document]);
 
   const sendCursor = (delta, length) => {
     const retainObject = delta.ops.find((op) => op.retain !== undefined && op.attributes === undefined && op.insert === undefined && op.delete === undefined);
