@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Doc from '../CRDTs/Doc.js';
 import QuillCursors from 'quill-cursors';
@@ -20,6 +21,7 @@ function Editor({ documentID, siteID, loadedDocument, socketRef, readOnly }) {
   const { user } = useAuthContext();
   const operationQueueRef = useRef([]);
   const versionVectorRef = useRef({});
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (quillRef.current && socketRef.current && document) {
@@ -200,8 +202,9 @@ function Editor({ documentID, siteID, loadedDocument, socketRef, readOnly }) {
 
   return(
     <>  
-      <div className='flex items-end flex-col'>
-        <button className='text-blue-500 bg-slate-100 m-3' onClick={handleSave}>Save</button>
+      <div className='flex justify-between'>
+        <button className='text-blue-500 bg-slate-100 m-3 mx-16' onClick={() => navigate('/home')}>Back</button>
+        <button className='text-blue-500 bg-slate-100 m-3 mx-16' onClick={handleSave}>Save</button>
       </div>
       <ReactQuill ref={quillRef} theme="snow" value={value} onChange={setValue} modules={modules} readOnly={readOnly} />
     </>
