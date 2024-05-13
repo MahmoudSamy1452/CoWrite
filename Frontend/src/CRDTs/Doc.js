@@ -12,7 +12,7 @@ class Doc {
       storedDoc = []
     }
     if(storedDoc.length === 0) {
-      this.doc = [new CRDT(0, 0, true, 0, false, false, 'bof'), new CRDT(0, 0, true, 10000, false, false, 'eof')]
+      this.doc = [new CRDT(0, 0, true, 0, false, false, 'bof'), new CRDT(0, 0, true, Number.MAX_VALUE, false, false, 'eof')]
       return
     }
     this.doc = storedDoc;
@@ -49,6 +49,7 @@ class Doc {
     // const fractionalIndex = prevFractionalIndex + (nextFractionalIndex - prevFractionalIndex) / 2;
     let fractionalIndex;
     const diff = nextFractionalIndex - prevFractionalIndex;
+    console.log("nextFractionalIndex - prevFractionalIndex = ", diff);
     if (diff <= 10) {
       fractionalIndex = prevFractionalIndex + diff/100;
     } else if (diff <= 1000) {
