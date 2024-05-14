@@ -24,7 +24,7 @@ class Doc {
     // for(; docIndex < this.doc.length && editorIndex <= index; docIndex++) {
     //   editorIndex += this.doc[docIndex].tombstone ? 0 : 1;
     // }
-    while (docIndex < this.doc.length && editorIndex <= index) {
+    while (docIndex < this.doc.length - 1 && editorIndex <= index) {
       editorIndex += this.doc[docIndex].tombstone ? 0 : 1;
       docIndex++;
     }
@@ -34,7 +34,7 @@ class Doc {
   convertDocIndexToEditorIndex(index) {
     console.log("index", index)
     let editorIndex = 0;
-    for(let docIndex = 1; docIndex < index && docIndex < this.doc.length; docIndex++) {
+    for(let docIndex = 1; docIndex < index && docIndex < this.doc.length - 1; docIndex++) {
       editorIndex += this.doc[docIndex].tombstone ? 0 : 1;
     }
     console.log("editorIndex", editorIndex)
