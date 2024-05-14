@@ -36,6 +36,7 @@ const saveDocumentOnLeave = async (docId) => {
         docMap[docId].doc = filtered;
 
         if (lastVersion && lastVersion.content === JSON.stringify(docMap[docId].doc)) {
+            delete docMap[docId];
             return { status: 200, message: 'No changes detected in document' };
         }
 
@@ -46,6 +47,8 @@ const saveDocumentOnLeave = async (docId) => {
             content: JSON.stringify(docMap[docId].doc),
             version_number: versionNumber
         });
+        
+        delete docMap[docId];
         return { status: 200, message: 'Document saved successfully' }
     } catch (e) {
         return { status: 500, message: e.message };

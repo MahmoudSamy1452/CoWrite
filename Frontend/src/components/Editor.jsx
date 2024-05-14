@@ -207,7 +207,7 @@ function Editor({ documentID, siteID, loadedDocument, socketRef, readOnly }) {
         <button className='text-blue-500 bg-slate-100 m-3 mx-16' onClick={() => navigate('/home')}>Back</button>
         <button className='text-blue-500 bg-slate-100 m-3 mx-16' onClick={handleSave}>Save</button>
       </div>
-      <ReactQuill ref={quillRef} theme="snow" value={value} onChange={setValue} modules={modules} readOnly={readOnly} />
+      <ReactQuill ref={quillRef} theme="snow" value={value} onChange={setValue} modules={modules} readOnly={ !document || readOnly } />
     </>
   )
 }
