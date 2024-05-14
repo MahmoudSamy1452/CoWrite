@@ -58,7 +58,7 @@ const Document = (props) => {
   return (
     <>
       {props.view === "table" && (
-        <div className="flex w-full justify-between p-5 bg-slate-100 hover:bg-slate-200 hover:shadow-l hover:cursor-pointer transition duration-500 ease-in-out" onClick={() => {navigate(`/view/${props.id}`, { state: { role: props.role } })}}>
+        <div className="flex flex-wrap flex-row w-full justify-between p-5 bg-slate-100 hover:bg-slate-200 hover:shadow-l hover:cursor-pointer transition duration-500 ease-in-out" onClick={() => {navigate(`/view/${props.id}`, { state: { role: props.role } })}}>
           <div className='flex gap-3 w-44'>
             <h3 className='text-lg overflow-hidden overflow-ellipsis whitespace-nowrap'>{props.title}</h3>
           </div>

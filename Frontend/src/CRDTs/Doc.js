@@ -12,7 +12,7 @@ class Doc {
       storedDoc = []
     }
     if(storedDoc.length === 0) {
-      this.doc = [new CRDT(0, 0, true, 0, false, false, 'bof'), new CRDT(0, 0, true, 10000, false, false, 'eof')]
+      this.doc = [new CRDT(0, 0, true, 0, false, false, 'bof'), new CRDT(0, 0, true, Number.MAX_VALUE, false, false, 'eof')]
       return
     }
     this.doc = storedDoc;
@@ -43,12 +43,13 @@ class Doc {
 
   getFractionalIndex(index) {
     const docIndex = this.convertEditorIndexToFractionalIndex(index);
+    const prevDocIndex = this.convertEditorIndexToFractionalIndex(index-1);
     console.log(docIndex)
-    const prevFractionalIndex = this.doc[docIndex-1].index;
+    const prevFractionalIndex = this.doc[prevDocIndex].index;
     const nextFractionalIndex = this.doc[docIndex].index;
-    // const fractionalIndex = prevFractionalIndex + (nextFractionalIndex - prevFractionalIndex) / 2;
     let fractionalIndex;
     const diff = nextFractionalIndex - prevFractionalIndex;
+    console.log("nextFractionalIndex - prevFractionalIndex = ", diff);
     if (diff <= 10) {
       fractionalIndex = prevFractionalIndex + diff/100;
     } else if (diff <= 1000) {
@@ -70,6 +71,14 @@ class Doc {
     return content;
   }
 
+  compare(a, b) {
+    if(a.index != b.index) {
+      return a.index - b.index; 
+    } else {
+      return a.siteID > b.siteID ? 1 : -1;
+    }
+  }
+
   handleLocalInsert(change, siteID, siteCounter) {
     let EditorIndex = change.find((op) => op.retain !== undefined)?.retain || 0;
     const inserts = change.filter((op) => op.insert !== undefined);
@@ -84,7 +93,7 @@ class Doc {
         const newCRDT = new CRDT(siteID, siteCounter++, false, FractionalIndex, attributes.bold, attributes.italic, char)
         CRDTs.push(newCRDT);
         this.doc.push(newCRDT);
-        this.doc.sort((a, b) => a.index - b.index);
+        this.doc.sort(this.compare);
       }
     }
     return CRDTs;
@@ -103,23 +112,40 @@ class Doc {
   }
 
   handleLocalAttribute(change) {
-    let EditorIndex = change.find((op) => op.retain !== undefined && op.attributes === undefined)?.retain || 0;
-    const attribute = change.find((op) => op.attributes !== undefined)
-    let attributeCount = attribute.retain || 1;
+    let EditorIndex = 0;
     let CRDTs = [];
-    while(attributeCount--){
-      const docIndex = this.convertEditorIndexToFractionalIndex(EditorIndex++);
-      this.doc[docIndex].bold = attribute.attributes.bold === undefined ? this.doc[docIndex].bold : attribute.attributes.bold ? true : false;
-      this.doc[docIndex].italic = attribute.attributes.italic === undefined ? this.doc[docIndex].italic : attribute.attributes.italic ? true : false;
-      CRDTs.push(this.doc[docIndex]);
+    for(let op of change) {
+      EditorIndex += op.attributes === undefined ? op?.retain || 0 : 0;
+      const attribute = op.attributes !== undefined ? op : undefined;
+      if(!attribute) continue;
+      let attributeCount = attribute.retain || 1;
+      while(attributeCount--){
+        const docIndex = this.convertEditorIndexToFractionalIndex(EditorIndex++);
+        this.doc[docIndex].bold = attribute.attributes.bold === undefined ? this.doc[docIndex].bold : attribute.attributes.bold ? true : false;
+        this.doc[docIndex].italic = attribute.attributes.italic === undefined ? this.doc[docIndex].italic : attribute.attributes.italic ? true : false;
+        CRDTs.push(this.doc[docIndex]);
+      }
     }
     console.log('attr ', CRDTs)
     return CRDTs;
   }
 
+  handleCollision(fractionalIndex) {
+    const count = this.doc.filter((char) => char.index === fractionalIndex && char.tombstone === false).length;
+    if (count === 1)  return;
+    const docIndex = this.doc.findIndex((char) => char.index === fractionalIndex && char.tombstone === false);
+    const modifiedCRDT = this.doc[docIndex];
+    this.doc.splice(docIndex, 1);
+    modifiedCRDT.index = this.getFractionalIndex(this.convertDocIndexToEditorIndex(docIndex));
+    console.log(modifiedCRDT.index)
+    this.doc.push(modifiedCRDT);
+    this.doc.sort(this.compare);
+  }
+
   handleRemoteInsert(newCRDT) {
     this.doc.push(newCRDT);
-    this.doc.sort((a, b) => a.index - b.index);
+    this.doc.sort(this.compare);
+    this.handleCollision(newCRDT.index);
     const docIndex = this.doc.findIndex((char) => char.siteID === newCRDT.siteID && char.siteCounter === newCRDT.siteCounter);
     const editorIndex = this.convertDocIndexToEditorIndex(docIndex);
     let delta = editorIndex ? [{ retain: editorIndex }] : [];
@@ -177,6 +203,18 @@ class Doc {
       }
     }
     return lastSiteCounter;
+  }
+
+  extractExpectedSiteCounters() {
+    let lastSiteCounters = {};
+    for (let char of this.doc) {
+      if (char.siteID in lastSiteCounters) {
+        lastSiteCounters[char.siteID] = Math.max(lastSiteCounters[char.siteID], char.siteCounter+1);
+      } else {
+        lastSiteCounters[char.siteID] = char.siteCounter+1;
+      }
+    }
+    return lastSiteCounters;
   }
 }
 

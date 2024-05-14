@@ -54,10 +54,12 @@ const EditPage = () => {
         }
     }, []);
 
-
+    useEffect(() => {
+        window.scrollTo(0, 0);
+      }, []);
 
     return (
-        <div className="mt-16 text-left w-screen">
+        <div className="mt-16 text-left max-w-[98.8vw]">
             <Editor documentID={documentID} siteID={siteID} loadedDocument={document} socketRef = {socketRef} readOnly = {role === 'v' ? true : false}/>
         </div>
     );

@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Doc from '../CRDTs/Doc.js';
 import QuillCursors from 'quill-cursors';
@@ -14,29 +15,51 @@ Quill.register('modules/cursors', QuillCursors)
 function Editor({ documentID, siteID, loadedDocument, socketRef, readOnly }) {
   const [value, setValue] = useState('');
   const [siteCounter, setSiteCounter] = useState(0);
+  const siteCounterRef = useRef(0);
   const [document, setDocument] = useState();
-  const [cursors, setCursors] = useState([{}]);
   const quillRef = useRef(null);
   const { user } = useAuthContext();
+  const operationQueueRef = useRef([]);
+  const versionVectorRef = useRef({});
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (quillRef.current && socketRef.current && document) {
       socketRef.current.on('receive-changes', (crdt) => {
         console.log("received changes", crdt);
         const newCRDT = JSON.parse(crdt);
-        const char = document.doc.find((oldCRDT) => newCRDT.siteID == oldCRDT.siteID && newCRDT.siteCounter == oldCRDT.siteCounter);
-        let delta = null;
-        if (newCRDT.tombstone) {
-          delta = document.handleRemoteDelete(newCRDT);
-        } else if (!char) {
-          delta = document.handleRemoteInsert(newCRDT);
-        } else {
-          delta = document.handleRemoteAttribute(newCRDT);
+        let toBeProcessed = [...operationQueueRef.current, newCRDT];
+        let newOperationQueue = [];
+        let curVersionVector = {...versionVectorRef.current };
+        console.log('curVersionVector', curVersionVector);
+        toBeProcessed.sort((a, b) => a.siteCounter - b.siteCounter);
+        for(let operation of toBeProcessed) {
+          const expectedCounter = curVersionVector[operation.siteID] || 0;
+          console.log(operation.siteCounter, expectedCounter)
+          if (operation.siteCounter > expectedCounter && operation.siteID !== siteID) {
+            newOperationQueue.push(operation);
+            continue;
+          }
+          curVersionVector[operation.siteID] = Math.max(expectedCounter, operation.siteCounter+1);
+          const char = document.doc.find((oldCRDT) => operation.siteID == oldCRDT.siteID && operation.siteCounter == oldCRDT.siteCounter);
+          let delta = null;
+          if (operation.tombstone) {
+            delta = document.handleRemoteDelete(newCRDT);
+          } else if (!char) {
+            delta = document.handleRemoteInsert(newCRDT);
+          } else {
+            delta = document.handleRemoteAttribute(newCRDT);
+          }
+          document.pretty();
+          console.log('ya allah', delta);
+          quillRef.current.getEditor().updateContents(delta, 'silent');
         }
-        document.pretty();
-        quillRef.current.getEditor().updateContents(delta, 'silent');
+        operationQueueRef.current = newOperationQueue;
+        versionVectorRef.current = curVersionVector;
+        console.log('newOperationQueue', newOperationQueue)
+        console.log('versionVector', curVersionVector);
       });
-
+    
       socketRef.current.on('receive-cursor', (cursor, range) => {
         console.log("received cursor", cursor.id, range);
         const editor = quillRef.current.getEditor();
@@ -63,7 +86,7 @@ function Editor({ documentID, siteID, loadedDocument, socketRef, readOnly }) {
       if (document) {
         console.log(document.doc)
         quillRef.current.getEditor().updateContents(document.getContent(), 'silent');
-        setSiteCounter(document.extractLastSiteCounter(siteID));
+        siteCounterRef.current = document.extractLastSiteCounter(siteID);
       }
     }
   }, [document]);
@@ -81,7 +104,10 @@ function Editor({ documentID, siteID, loadedDocument, socketRef, readOnly }) {
 
   useEffect(() => {
     if (loadedDocument) {
-      setDocument(new Doc(loadedDocument));
+      const newDoc = new Doc(loadedDocument);
+      setDocument(newDoc);
+      versionVectorRef.current = newDoc.extractExpectedSiteCounters();
+      console.log('--------------------------------------------')
     }
   }, [loadedDocument]);
 
@@ -96,16 +122,14 @@ function Editor({ documentID, siteID, loadedDocument, socketRef, readOnly }) {
         let crdts;
         switch (op) {
           case 'insert':
-            setSiteCounter((prev) => {
-              crdts = document.handleLocalInsert(delta.ops, siteID, prev);
-              crdts.forEach((crdt) => {
-                console.log("sending insert", crdt)
-                socketRef.current.emit('send-changes', documentID, JSON.stringify(crdt));
-              });
-            document.pretty();
-            sendCursor(delta, crdts.length);
-              return crdts[crdts.length - 1].siteCounter + 1;
+            crdts = document.handleLocalInsert(delta.ops, siteID, siteCounterRef.current);
+            console.log("sending insert", crdts)
+            crdts.forEach((crdt) => {
+              socketRef.current.emit('send-changes', documentID, JSON.stringify(crdt));
             });
+            siteCounterRef.current = crdts[crdts.length - 1].siteCounter + 1;
+            sendCursor(delta, crdts.length);
+            document.pretty();
             break;
           case 'delete':
             crdts = document.handleLocalDelete(delta.ops);
@@ -137,7 +161,7 @@ function Editor({ documentID, siteID, loadedDocument, socketRef, readOnly }) {
         }
       })
     }
-  }, [document, siteCounter]);
+  }, [document]);
 
   const sendCursor = (delta, length) => {
     const retainObject = delta.ops.find((op) => op.retain !== undefined && op.attributes === undefined && op.insert === undefined && op.delete === undefined);
@@ -179,8 +203,9 @@ function Editor({ documentID, siteID, loadedDocument, socketRef, readOnly }) {
 
   return(
     <>  
-      <div className='flex items-end flex-col'>
-        <button className='text-blue-500 bg-slate-100 m-3' onClick={handleSave}>Save</button>
+      <div className='flex justify-between'>
+        <button className='text-blue-500 bg-slate-100 m-3 mx-16' onClick={() => navigate('/home')}>Back</button>
+        <button className='text-blue-500 bg-slate-100 m-3 mx-16' onClick={handleSave}>Save</button>
       </div>
       <ReactQuill ref={quillRef} theme="snow" value={value} onChange={setValue} modules={modules} readOnly={readOnly} />
     </>

@@ -68,6 +68,33 @@ input:focus {
   outline-color: #646cff;
 }
 
+.ql-toolbar {
+  display: flex;
+  position: sticky;
+  top: 51px;
+  z-index: 50;
+  width: 60rem;
+  border: none;
+  margin: auto;
+  border-bottom: 2px solid #ccc;
+  background-color: white;
+  justify-content: center;
+}
+
+.ql-container {
+  overflow-x: hidden;
+}
+
+.ql-editor {
+  background-color: white;
+  padding: 50px;
+  min-height: 1300px;
+  min-width: 500px;
+  max-width: 60rem;
+  margin: auto;
+  border: 2px solid gray;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
@@ -78,5 +105,11 @@ input:focus {
   }
   button {
     background-color: #f9f9f9;
+  }
+}
+
+@media (width < 768px) {
+  .ql-toolbar {
+    width:100%;
   }
 }
