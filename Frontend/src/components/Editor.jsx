@@ -51,6 +51,7 @@ function Editor({ documentID, siteID, loadedDocument, socketRef, readOnly }) {
             delta = document.handleRemoteAttribute(newCRDT);
           }
           document.pretty();
+          console.log('ya allah', delta);
           quillRef.current.getEditor().updateContents(delta, 'silent');
         }
         operationQueueRef.current = newOperationQueue;

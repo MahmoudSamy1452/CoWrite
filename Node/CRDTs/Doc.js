@@ -11,7 +11,7 @@ class Doc {
       storedDoc = []
     }
     if(storedDoc.length === 0) {
-      this.doc = [new CRDT(0, 0, true, 0, false, false, 'bof'), new CRDT(0, 0, true, Number.MAX_VALUE, false, false, 'eof')]
+      this.doc = [new CRDT(0, 0, true, 0, false, false, 'bof'), new CRDT(0, 0, true, Number.MAX_SAFE_INTEGER, false, false, 'eof')]
       return
     }
     this.doc = storedDoc;
@@ -25,13 +25,27 @@ class Doc {
     return docIndex;
   }
 
+  
+  convertDocIndexToEditorIndex(index) {
+    console.log("index", index)
+    let editorIndex = 0;
+    for(let docIndex = 1; docIndex < index && docIndex < this.doc.length; docIndex++) {
+      editorIndex += this.doc[docIndex].tombstone ? 0 : 1;
+    }
+    console.log("editorIndex", editorIndex)
+    return editorIndex;
+  }
+
   getFractionalIndex(index) {
     const docIndex = this.convertEditorIndexToFractionalIndex(index);
+    const prevDocIndex = this.convertEditorIndexToFractionalIndex(index-1);
     console.log(docIndex)
-    const prevFractionalIndex = this.doc[docIndex-1].index;
+    this.debug();
+    const prevFractionalIndex = this.doc[prevDocIndex].index;
     const nextFractionalIndex = this.doc[docIndex].index;
     let fractionalIndex;
     const diff = nextFractionalIndex - prevFractionalIndex;
+    console.log("nextFractionalIndex - prevFractionalIndex = ", diff);
     if (diff <= 10) {
       fractionalIndex = prevFractionalIndex + diff/100;
     } else if (diff <= 1000) {
@@ -53,6 +67,14 @@ class Doc {
     return content;
   }
 
+  compare(a, b) {
+    if(a.index != b.index) {
+      return a.index - b.index;
+    } else {
+      return a.siteID > b.siteID ? 1 : -1;
+    }
+  }
+
   handleLocalInsert(change, siteID, siteCounter) {
     const EditorIndex = change.find((op) => op.retain !== undefined)?.retain || 0;
     const attributes = change.find((op) => op.attributes !== undefined)?.attributes || {bold: false, italic: false};
@@ -60,7 +82,7 @@ class Doc {
     const FractionalIndex = this.getFractionalIndex(EditorIndex)
     const newCRDT = new CRDT(siteID, siteCounter, false, FractionalIndex, attributes.bold, attributes.italic, char)
     this.doc.push(newCRDT);
-    this.doc.sort((a, b) => a.index - b.index);
+    this.doc.sort(this.compare);
     return newCRDT;
   }
 
@@ -71,9 +93,22 @@ class Doc {
     return this.doc[docIndex];
   }
 
+  handleCollision(fractionalIndex) {
+    const count = this.doc.filter((char) => char.index === fractionalIndex && char.tombstone === false).length;
+    if (count === 1)  return;
+    const docIndex = this.doc.findIndex((char) => char.index === fractionalIndex && char.tombstone === false);
+    const modifiedCRDT = this.doc[docIndex];
+    this.doc.splice(docIndex, 1);
+    modifiedCRDT.index = this.getFractionalIndex(this.convertDocIndexToEditorIndex(docIndex));
+    console.log(modifiedCRDT.index)
+    this.doc.push(modifiedCRDT);
+    this.doc.sort(this.compare);
+  }
+
   handleRemoteInsert(newCRDT) {
     this.doc.push(newCRDT);
-    this.doc.sort((a, b) => a.index - b.index);
+    this.doc.sort(this.compare);
+    this.handleCollision(newCRDT.index);
   }
 
   handleRemoteDelete(newCRDT) {

@@ -34,6 +34,7 @@ const setupEvents = (io, socket) => {
     } else {
       docMap[docID].handleRemoteAttribute(newCRDT);
     }
+    
     socket.to(docID).emit('receive-changes', crdt);
   });
   
