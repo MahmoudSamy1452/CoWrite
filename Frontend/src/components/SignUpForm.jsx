@@ -18,10 +18,10 @@ const SignUpForm = () => {
 
     const regex = /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*\W)(?!.* ).{8,16}$/;
 
-    // if (!regex.test(e.target.password.value)) {
-    //   toast.error("Password must be between 8-16 characters and contain at least one number, one uppercase letter, one lowercase letter, and one special character");
-    //   return;
-    // }
+    if (!regex.test(e.target.password.value)) {
+      toast.error("Password must be between 8-16 characters and contain at least one number, one uppercase letter, one lowercase letter, and one special character");
+      return;
+    }
     
     if (e.target.password.value !== e.target.confirmPassword.value) {
       toast.error("Passwords do not match");
