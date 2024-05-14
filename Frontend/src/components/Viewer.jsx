@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -8,6 +9,7 @@ import Doc from '../CRDTs/Doc';
 
 const Viewer = ({ versionID, documentID, role }) => {
     const quillRef = useRef(null);
+    const navigate = useNavigate();
     
     useEffect(() => {
         axios.defaults.withCredentials = true;
@@ -52,8 +54,9 @@ const Viewer = ({ versionID, documentID, role }) => {
 
 return(
     <>  
-      <div className='flex items-end flex-col'>
-        <button className='text-blue-500 bg-slate-100 m-3' onClick={handleRollBack}>Roll back</button>
+      <div className='flex justify-between'>
+        <button className='text-blue-500 bg-slate-100 m-3 mx-16' onClick={() => navigate(`/history/${documentID}`, { state: { role: role } })} >Back</button>
+        <button className='text-blue-500 bg-slate-100 m-3 mx-16' onClick={handleRollBack}>Roll back</button>
       </div>
       <ReactQuill ref={quillRef} theme="snow" modules={modules} readOnly={true} />
     </>
