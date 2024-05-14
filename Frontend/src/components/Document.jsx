@@ -12,9 +12,9 @@ const Document = (props) => {
   const navigate = useNavigate();
 
   const colors = {
-    'v': 'bg-green-600',
-    'e': 'bg-green-900',
-    'o': 'bg-blue-900',
+    'v': 'hover:bg-[#fc9d03]',
+    'e': 'hover:bg-green-900',
+    'o': 'hover:bg-blue-900',
   }
 
   const fetchCover = (e) => {
@@ -77,8 +77,7 @@ const Document = (props) => {
       {props.view === "grid" && (
         <div className="flex flex-col rounded-lg overflow-hidden hover:bg-slate-100 hover:shadow-l hover:cursor-pointer transition duration-500 ease-in-out md:w-60 max-w-64 border"
         onClick={() => {navigate(`/view/${props.id}`, { state: { role: props.role } })}}>
-          <div className="relative group">
-            <div className={`${props.color} h-48 group-hover:${colors[props.role]} duration-300`}></div>
+          <div className={`${props.color} transition-colors relative group ${colors[props.role]} h-48`}>
             <div className="opacity-0 group-hover:opacity-100 duration-300 absolute inset-0 z-10 flex justify-center items-center text-6xl text-white font-semibold">{props.role.toUpperCase()}</div>
           </div>
           <div className="p-3 flex flex-col gap-2">
