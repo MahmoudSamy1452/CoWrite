@@ -52,7 +52,7 @@ const Documents = () => {
           <img className="cursor-pointer" src="docs-blank-googlecolors.png" width="180px" alt="new document" onClick={() => {setAction("Create"); setIsOpen(0)}}/>
         </div>
         <div className="flex justify-between p-5">
-          <h4 className="text-left p-20 py-7">Recent documents</h4>
+          <button onClick={fetchDocuments} className="bg-slate-100 text-blue-500 m-5">Refresh</button>
           {view === "table" &&
             <button onClick={() => setView("grid")} className="bg-slate-100 text-blue-500 m-5">Grid view</button>
           }
