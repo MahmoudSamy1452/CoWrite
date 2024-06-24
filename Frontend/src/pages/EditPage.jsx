@@ -7,7 +7,7 @@ import { VITE_NODE_URL } from '../../config';
 import { toast } from 'sonner';
 import { useAuthContext } from '../hooks/useAuthContext';
 
-const EditPage = () => {
+const EditPage = ({setTitle}) => {
     const [siteID, setSiteID] = useState(null);
     const [document, setDocument] = useState(null);
     const socketRef = useRef(null);
@@ -49,6 +49,7 @@ const EditPage = () => {
                     socketRef.current.emit('leave-document', documentID, currentSiteID);
                     socketRef.current.disconnect();
                     socketRef.current = null;
+                    setTitle("CoWrite");
                 }
             };
         }

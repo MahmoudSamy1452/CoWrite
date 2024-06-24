@@ -58,7 +58,8 @@ const Document = (props) => {
   return (
     <>
       {props.view === "table" && (
-        <div className="flex flex-wrap flex-row w-full justify-between p-5 bg-slate-100 hover:bg-slate-200 hover:shadow-l hover:cursor-pointer transition duration-500 ease-in-out" onClick={() => {navigate(`/view/${props.id}`, { state: { role: props.role } })}}>
+        <div className="flex flex-wrap flex-row w-full justify-between p-5 bg-slate-100 hover:bg-slate-200 hover:shadow-l hover:cursor-pointer transition duration-500 ease-in-out" onClick={() => {props.setTitle(props.title)
+          navigate(`/view/${props.id}`, { state: { role: props.role} })}}>
           <div className='flex gap-3 w-44'>
             <h3 className='text-lg overflow-hidden overflow-ellipsis whitespace-nowrap'>{props.title}</h3>
           </div>
@@ -76,7 +77,8 @@ const Document = (props) => {
       )}
       {props.view === "grid" && (
         <div className="flex flex-col rounded-lg overflow-hidden hover:bg-slate-100 hover:shadow-l hover:cursor-pointer transition duration-500 ease-in-out md:w-60 max-w-64 border"
-        onClick={() => {navigate(`/view/${props.id}`, { state: { role: props.role } })}}>
+        onClick={() => {props.setTitle(props.title)
+          navigate(`/view/${props.id}`, { state: { role: props.role} })}}>
           <div className={`${props.color} transition-colors relative group ${colors[props.role]} h-48`}>
             <div className="opacity-0 group-hover:opacity-100 duration-300 absolute inset-0 z-10 flex justify-center items-center text-6xl text-white font-semibold">{props.role.toUpperCase()}</div>
           </div>

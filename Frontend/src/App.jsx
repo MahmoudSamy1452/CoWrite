@@ -9,18 +9,20 @@ import { Toaster } from "sonner"
 import Navbar from "./components/Navbar"
 import PrivateRoute from "./components/PrivateRoute"
 import AnonymousRoute from "./components/AnonymousRoute"
+import { useState } from "react"
 
 function App() {
+  const [title, setTitle] = useState("CoWrite")
 
   return (
     <BrowserRouter>
       <Toaster position="top-center" richColors/>
-      <Navbar />
+      <Navbar title={title}/>
       <Routes>
         <Route path="/signup" element={<AnonymousRoute><SignUp /></AnonymousRoute>} />
         <Route path="/" element={<AnonymousRoute><Login /></AnonymousRoute>} />
-        <Route path="/home" element={<PrivateRoute><Documents /></PrivateRoute>} />
-        <Route path="/view/:id" element={<PrivateRoute><EditPage /></PrivateRoute>} />
+        <Route path="/home" element={<PrivateRoute><Documents setTitle={setTitle}/></PrivateRoute>}/>
+        <Route path="/view/:id" element={<PrivateRoute><EditPage setTitle={setTitle}/></PrivateRoute>} />
         <Route path="/history/:id" element={<PrivateRoute><History /></PrivateRoute>} />
         <Route path="/version/:id" element={<PrivateRoute><ViewVersion /></PrivateRoute>} />
       </Routes>

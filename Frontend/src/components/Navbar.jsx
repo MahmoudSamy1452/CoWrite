@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useAuthContext } from "../hooks/useAuthContext";
 import { useNavigate } from "react-router-dom";
 
-const Navbar = () => {
+const Navbar = ({title}) => {
   const { user, dispatch } = useAuthContext();
   const navigate = useNavigate();
 
@@ -16,12 +16,14 @@ const Navbar = () => {
       <nav className="bg-white text-black fixed top-0 left-0 right-0 z-50 mb-10">
         <ul className="inner font-medium flex w-full px-4">
           <li className="flex py-2 justify-center align-middle">
+            <Link to="/home">
             <img src="./cowrite-logo.svg" className="w-14" alt="CoWrite Logo" />
+            </Link>
             <Link
               to="/home"
               className="text-blue-800 hover:text-transparent bg-clip-text transition-all hover:bg-gradient-to-r from-yellow-400 via-green-500 to-blue-600 m-auto"
             >
-              CoWrite
+              {title}
             </Link>
           </li>
           {/* <li className="inline py-2 ml-auto">

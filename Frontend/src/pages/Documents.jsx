@@ -13,7 +13,7 @@ const colors = {
   'o': 'bg-[#4285f4]',
 }
 
-const Documents = () => {
+const Documents = ({setTitle}) => {
   const { token } = useAuthContext();
   const [documentList, setDocumentList] = useState([]);
   const [view, setView] = useState("grid");
@@ -73,6 +73,7 @@ const Documents = () => {
                 setAction={setAction}
                 color={colors[document.role]}
                 role={document.role}
+                setTitle={setTitle}
               />
               );
           })}
