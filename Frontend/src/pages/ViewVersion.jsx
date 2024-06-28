@@ -9,7 +9,7 @@ const ViewVersion = ({setTitle}) => {
     const role = location.state.role;
 
     return (
-        <div className="mt-16 text-left w-screen">
+        <div className="mt-16 text-left max-w-[98.8vw]">
             <Viewer versionID={versionID} documentID={documentID} role={role} setTitle={setTitle}/>
         </div>
     );
