@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import { VITE_BACKEND_URL, VITE_NODE_URL } from '../../config';
 import Doc from '../CRDTs/Doc';
 
-const Viewer = ({ versionID, documentID, role }) => {
+const Viewer = ({ versionID, documentID, role, setTitle }) => {
     const quillRef = useRef(null);
     const navigate = useNavigate();
     
@@ -55,7 +55,7 @@ const Viewer = ({ versionID, documentID, role }) => {
 return(
     <>  
       <div className='flex justify-between'>
-        <button className='text-blue-500 bg-slate-100 m-3 mx-16' onClick={() => navigate(`/history/${documentID}`, { state: { role: role } })} >Back</button>
+        <button className='text-blue-500 bg-slate-100 m-3 mx-16' onClick={() => {setTitle(prev => prev.substring(0, prev.indexOf(' '))); navigate(`/history/${documentID}`, { state: { role: role } })}} >Back</button>
         <button className='text-blue-500 bg-slate-100 m-3 mx-16' onClick={handleRollBack}>Roll back</button>
       </div>
       <ReactQuill ref={quillRef} theme="snow" modules={modules} readOnly={true} />

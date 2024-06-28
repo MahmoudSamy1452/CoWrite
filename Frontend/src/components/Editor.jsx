@@ -12,7 +12,7 @@ import { faker } from '@faker-js/faker';
 
 Quill.register('modules/cursors', QuillCursors)
 
-function Editor({ documentID, siteID, loadedDocument, socketRef, readOnly }) {
+function Editor({ documentID, siteID, loadedDocument, socketRef, readOnly, setUsernames }) {
   const [value, setValue] = useState('');
   const [siteCounter, setSiteCounter] = useState(0);
   const siteCounterRef = useRef(0);
@@ -71,6 +71,7 @@ function Editor({ documentID, siteID, loadedDocument, socketRef, readOnly }) {
         } else {
           cursorModule.createCursor(cursor.id, cursor.name, cursor.color);
           cursorModule.moveCursor(cursor.id, range);
+          setUsernames((prev) => [...prev, cursor.name]);
         }
         console.log('moved to: ', range);
       })
@@ -79,7 +80,10 @@ function Editor({ documentID, siteID, loadedDocument, socketRef, readOnly }) {
         console.log("removing cursor", ID);
         const editor = quillRef.current.getEditor();
         const cursorModule = editor.getModule('cursors');
-
+        const cursor = cursorModule._cursors[ID];
+        console.log('cursor:', cursor);
+        console.log('all cursors:', cursorModule._cursors);
+        setUsernames((prev) => prev.filter((user) => user !== cursor?.name));
         cursorModule.removeCursor(ID);
       })
 
@@ -99,6 +103,7 @@ function Editor({ documentID, siteID, loadedDocument, socketRef, readOnly }) {
       console.log("cursor", cursor);
       const range = {"index":0,"length":0}
       socketRef.current.emit('send-cursor', documentID, cursor, range);
+      setUsernames((prev) => [...prev, user]);
     }
   }, [socketRef.current, quillRef.current]);
 

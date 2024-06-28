@@ -7,12 +7,13 @@ import { VITE_NODE_URL } from '../../config';
 import { toast } from 'sonner';
 import { useAuthContext } from '../hooks/useAuthContext';
 
-const EditPage = () => {
+const EditPage = ({setTitle, setUserRole, setUsernames}) => {
     const [siteID, setSiteID] = useState(null);
     const [document, setDocument] = useState(null);
     const socketRef = useRef(null);
     const documentID = useParams().id;
     const { token } = useAuthContext();
+    const { user } = useAuthContext();
 
     const location = useLocation();
     const role = location.state.role;
@@ -49,6 +50,9 @@ const EditPage = () => {
                     socketRef.current.emit('leave-document', documentID, currentSiteID);
                     socketRef.current.disconnect();
                     socketRef.current = null;
+                    setTitle("CoWrite");
+                    setUserRole(null);
+                    setUsernames([]);
                 }
             };
         }
@@ -60,7 +64,7 @@ const EditPage = () => {
 
     return (
         <div className="mt-16 text-left max-w-[98.8vw]">
-            <Editor documentID={documentID} siteID={siteID} loadedDocument={document} socketRef = {socketRef} readOnly = {role === 'v' ? true : false}/>
+            <Editor documentID={documentID} siteID={siteID} loadedDocument={document} socketRef = {socketRef} readOnly = {role === 'v' ? true : false} setUsernames={setUsernames}/>
         </div>
     );
 };
