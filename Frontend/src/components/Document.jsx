@@ -70,7 +70,8 @@ const Document = (props) => {
                 <FontAwesomeIcon className="self-center" icon={faPenToSquare} onClick={() => openModal("Rename")} />
                 <FontAwesomeIcon className="self-center" icon={faTrashCan} onClick={deleteDocument} />
                 <FontAwesomeIcon className="self-center" icon={faShare} onClick={() => openModal("Share")}/>
-                <FontAwesomeIcon className="self-center" icon={faCodeCompare} onClick={() => navigate(`/history/${props.id}`, { state: { role: props.role } })}/>
+                <FontAwesomeIcon className="self-center" icon={faCodeCompare} onClick={() => {props.setTitle(props.title) 
+                  navigate(`/history/${props.id}`, { state: { role: props.role } })}}/>
               </span>
           </div>
           <p className='w-64 text-left'>Last Edited: {props.lastEdited}</p>
@@ -92,7 +93,8 @@ const Document = (props) => {
                 <FontAwesomeIcon className="self-center" icon={faPenToSquare} onClick={() => openModal("Rename")} />
                 <FontAwesomeIcon className="self-center" icon={faTrashCan} onClick={deleteDocument} />
                 <FontAwesomeIcon className="self-center" icon={faShare} onClick={() => openModal("Share")}/>
-                <FontAwesomeIcon className="self-center" icon={faCodeCompare} onClick={() => navigate(`/history/${props.id}`, { state: { role: props.role } })}/>
+                <FontAwesomeIcon className="self-center" icon={faCodeCompare} onClick={() => {props.setTitle(props.title) 
+                  navigate(`/history/${props.id}`, { state: { role: props.role } })}}/>
               </span>
             </div>
           </div>

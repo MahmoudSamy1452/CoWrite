@@ -19,14 +19,14 @@ function App() {
   return (
     <BrowserRouter>
       <Toaster position="top-center" richColors/>
-      <Navbar title={title} userRole={userRole} usernames={usernames}/>
+      <Navbar title={title} setTitle={setTitle} userRole={userRole} usernames={usernames}/>
       <Routes>
         <Route path="/signup" element={<AnonymousRoute><SignUp /></AnonymousRoute>} />
         <Route path="/" element={<AnonymousRoute><Login /></AnonymousRoute>} />
         <Route path="/home" element={<PrivateRoute><Documents setTitle={setTitle} setUserRole={setUserRole}/></PrivateRoute>}/>
         <Route path="/view/:id" element={<PrivateRoute><EditPage setTitle={setTitle} setUserRole={setUserRole} setUsernames={setUsernames}/></PrivateRoute>} />
-        <Route path="/history/:id" element={<PrivateRoute><History /></PrivateRoute>} />
-        <Route path="/version/:id" element={<PrivateRoute><ViewVersion /></PrivateRoute>} />
+        <Route path="/history/:id" element={<PrivateRoute><History setTitle={setTitle}/></PrivateRoute>} />
+        <Route path="/version/:id" element={<PrivateRoute><ViewVersion setTitle={setTitle}/></PrivateRoute>} />
       </Routes>
     </BrowserRouter>
   )

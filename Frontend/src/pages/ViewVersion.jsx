@@ -1,7 +1,7 @@
 import { useParams, useLocation } from "react-router-dom";
 import Viewer from "../components/Viewer";
 
-const ViewVersion = () => {
+const ViewVersion = ({setTitle}) => {
     const versionID = useParams().id;
 
     const location = useLocation();
@@ -10,7 +10,7 @@ const ViewVersion = () => {
 
     return (
         <div className="mt-16 text-left w-screen">
-            <Viewer versionID={versionID} documentID={documentID} role={role}/>
+            <Viewer versionID={versionID} documentID={documentID} role={role} setTitle={setTitle}/>
         </div>
     );
 };

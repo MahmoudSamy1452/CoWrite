@@ -7,7 +7,7 @@ import { FaEye } from "react-icons/fa";
 import Popover from "@mui/material/Popover";
 import { useState } from "react";
 
-const Navbar = ({ title, userRole, usernames }) => {
+const Navbar = ({ title, setTitle, userRole, usernames }) => {
   const { user, dispatch } = useAuthContext();
   const navigate = useNavigate();
 
@@ -39,11 +39,13 @@ const Navbar = ({ title, userRole, usernames }) => {
                 src="./cowrite-logo.svg"
                 className="w-14"
                 alt="CoWrite Logo"
+                onClick={() => {setTitle("CoWrite")}}
               />
             </Link>
             <Link
               to="/home"
               className="text-blue-800 hover:text-transparent bg-clip-text transition-all hover:bg-gradient-to-r from-yellow-400 via-green-500 to-blue-600 m-auto"
+              onClick={() => {setTitle("CoWrite")}}
             >
               {title}
             </Link>
